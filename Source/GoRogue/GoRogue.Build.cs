@@ -12,9 +12,19 @@ public class GoRogue : ModuleRules
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
+		PublicIncludePaths.AddRange(new string[]
+		{
+			"GoRogue/Public/Characters",
+			"GoRogue/Public/Components",
+			"GoRogue/Public/Environment",
+			"GoRogue/Public/Interfaces",
+			"GoRogue/Public/Weapon"
+		});
+
+
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
-		
+
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
 

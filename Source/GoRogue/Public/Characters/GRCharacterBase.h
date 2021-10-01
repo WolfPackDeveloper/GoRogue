@@ -6,8 +6,12 @@
 #include "GameFramework/Character.h"
 #include "GRCharacterBase.generated.h"
 
+class UAnimMontage;
 class USpringArmComponent;
 class UCameraComponent;
+
+class UGRAttributeComponent;
+class UGRInteractionComponent;
 
 UCLASS()
 class GOROGUE_API AGRCharacterBase : public ACharacter
@@ -19,21 +23,51 @@ public:
 	AGRCharacterBase();
 
 private:
-	void MoveForward(float Value);
-	void MoveRight(float Value);
-	//void LookUp(float Value);
-	//void TurnRight(float Value);
+
+	// RangeAttack support function
+	FVector GetAimLocation();
 
 protected:
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	// === Components ===
+
+	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArm = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* Camera = nullptr;
 	
+	UPROPERTY(VisibleAnywhere)
+	UGRInteractionComponent* InteractionComp = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UGRAttributeComponent* HealthComp;
+
+protected:
+
+	// === Attack ===
+
+	UPROPERTY(Editanywhere, BlueprintReadWrite, Category = "Attack")
+	float ShotDistance = 1000.f;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	UAnimMontage* AttackAnim = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	TSubclassOf<AActor> ProjectileClass;
+
+	FTimerHandle TimerHandle_PrimaryAttack;
+
+protected:
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	void MoveForward(float Value);
+	void MoveRight(float Value);
+	void PrimaryInterract();
+	void PrimaryAttack();
+	void PrimaryAttack_TimeElapsed();
 
 public:	
 	// Called every frame

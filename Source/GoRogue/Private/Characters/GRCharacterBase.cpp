@@ -81,6 +81,9 @@ FVector AGRCharacterBase::GetAimLocation()
 void AGRCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Update UI Helthbar Value
+	HealthComp->ApplyHealthChange(0.f);
 	
 }
 

@@ -26,6 +26,6 @@ protected:
 	UStaticMeshComponent* MeshComp;
 
 	UFUNCTION()
-		void OnHealthChanged(AActor* InstigatorActor, UGRAttributeComponent* OwningComp, float NewHealth, float Delta);
+	void OnHealthChanged(AActor* InstigatorActor, UGRAttributeComponent* OwningComp, float NewHealth, float Delta);
 
 };

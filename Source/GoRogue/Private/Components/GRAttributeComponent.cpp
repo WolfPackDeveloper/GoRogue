@@ -6,17 +6,34 @@
 // Sets default values for this component's properties
 UGRAttributeComponent::UGRAttributeComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	Health = HealthMax;
+}
 
+bool UGRAttributeComponent::IsAlive() const
+{
+	return Health > 0.f;
+}
+
+bool UGRAttributeComponent::IsFullHealth() const
+{
+	return Health == HealthMax;
+}
+
+float UGRAttributeComponent::GetHealthMax() const
+{
+	return HealthMax;
 }
 
 bool UGRAttributeComponent::ApplyHealthChange(float Delta)
 {
-	Health += Delta;
+	//Health += Delta;
+	float OldHealth = Health;
 
-	OnHealthChanged.Broadcast(nullptr, this, Health, Delta);
+	Health = FMath::Clamp(Health + Delta, 0.f, HealthMax);
 
-	return true;
+	float ActualDelta = Health - OldHealth;
+
+	OnHealthChanged.Broadcast(nullptr, this, Health, ActualDelta);
+
+	return ActualDelta != 0.f;
 }

@@ -9,6 +9,7 @@
 #include "Animation/AnimMontage.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h" // FindLookAtRotation
 
 
@@ -30,6 +31,14 @@ AGRCharacterBase::AGRCharacterBase()
 
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+}
+
+
+void AGRCharacterBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	HealthComp->OnHealthChanged.AddDynamic(this, &AGRCharacterBase::OnHealthChanged);
 }
 
 FVector AGRCharacterBase::GetAimLocation()
@@ -77,6 +86,24 @@ FVector AGRCharacterBase::GetAimLocation()
 	return AimLocation;
 }
 
+void AGRCharacterBase::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
+{
+	if (!ensureAlways(ClassToSpawn))
+	{
+		return;
+	}
+
+	FVector SpawnLocation = GetMesh()->GetSocketLocation(HandSocketName);
+	FVector AimLocation = GetAimLocation();
+	FRotator SpawnRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, AimLocation);
+	FTransform SpawnTM = FTransform(SpawnRotation, SpawnLocation);
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.Instigator = this;
+	GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTM, SpawnParams);
+}
+
 // Called when the game starts or when spawned
 void AGRCharacterBase::BeginPlay()
 {
@@ -109,29 +136,53 @@ void AGRCharacterBase::MoveRight(float Value)
 
 void AGRCharacterBase::PrimaryAttack()
 {
-	float DelayTime = 0.2f;
+	//float DelayTime = 0.2f;
 
-	PlayAnimMontage(AttackAnim);
+	//PlayAnimMontage(AttackAnim);
 	
-	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &AGRCharacterBase::PrimaryAttack_TimeElapsed, DelayTime);
+	StartAttackEffects();
+
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &AGRCharacterBase::PrimaryAttack_TimeElapsed, AttackAnimDelay);
 }
 
 void AGRCharacterBase::PrimaryAttack_TimeElapsed()
 {
-	if (!ensure(ProjectileClass))
-	{
-		return;
-	}
-	
-	FVector SpawnLocation = GetMesh()->GetSocketLocation(TEXT("Muzzle_01"));
-	FVector AimLocation = GetAimLocation();
-	FRotator SpawnRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, AimLocation);
-	FTransform SpawnTM = FTransform(SpawnRotation, SpawnLocation);
+	SpawnProjectile(ProjectileClass);
+}
 
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnParams.Instigator = this;
-	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+void AGRCharacterBase::BlackHoleAttack()
+{
+	//PlayAnimMontage(AttackAnim);
+
+	StartAttackEffects();
+
+	GetWorldTimerManager().SetTimer(TimerHandle_BlackholeAttack, this, &AGRCharacterBase::BlackholeAttack_TimeElapsed, AttackAnimDelay);
+}
+
+void AGRCharacterBase::BlackholeAttack_TimeElapsed()
+{
+	SpawnProjectile(BlackHoleProjectileClass);
+}
+
+void AGRCharacterBase::Dash()
+{
+	//PlayAnimMontage(AttackAnim);
+
+	StartAttackEffects();
+
+	GetWorldTimerManager().SetTimer(TimerHandle_Dash, this, &AGRCharacterBase::Dash_TimeElapsed, AttackAnimDelay);
+}
+
+void AGRCharacterBase::Dash_TimeElapsed()
+{
+	SpawnProjectile(DashProjectileClass);
+}
+
+void AGRCharacterBase::StartAttackEffects()
+{
+	PlayAnimMontage(AttackAnim);
+	// Casting Effect Plaing
+	UGameplayStatics::SpawnEmitterAttached(CastingEffect, GetMesh(), HandSocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
 }
 
 void AGRCharacterBase::PrimaryInterract()
@@ -140,6 +191,23 @@ void AGRCharacterBase::PrimaryInterract()
 	{
 		InteractionComp->PrimaryInterract();
 	}
+}
+
+void AGRCharacterBase::OnHealthChanged(AActor* InstigatorActor, UGRAttributeComponent* OwningComp, float NewHealth, float Delta)
+{
+	// Если наносится урон - начинаем мигать.
+	if (Delta < 0.0f)
+	{
+		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
+	}
+	// Время умирать.
+	if (NewHealth <= 0.f && Delta < 0.f)
+	{
+		APlayerController* PlayerController = Cast<APlayerController>(GetController());
+		
+		DisableInput(PlayerController);
+	}
+
 }
 
 // Called every frame
@@ -162,6 +230,8 @@ void AGRCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AGRCharacterBase::PrimaryAttack);
+	PlayerInputComponent->BindAction("SecondaryAttack", IE_Pressed, this, &AGRCharacterBase::BlackHoleAttack);
+	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &AGRCharacterBase::Dash);
 	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &AGRCharacterBase::PrimaryInterract);
 
 }

@@ -6,6 +6,10 @@
 #include "GameFramework/Character.h"
 #include "GRCharacterAI.generated.h"
 
+class UGRAttributeComponent;
+
+class UPawnSensingComponent;
+
 UCLASS()
 class GOROGUE_API AGRCharacterAI : public ACharacter
 {
@@ -16,10 +20,27 @@ public:
 	AGRCharacterAI();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UGRAttributeComponent* HealthComp = nullptr;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPawnSensingComponent* PawnSensingComp = nullptr;
+
+	/* VisibleAnywhere = read-only, still useful to view in-editor and enforce a convention. */
+	UPROPERTY(VisibleAnywhere, Category = "Effects")
+	FName TimeToHitParamName = "TimeToHit";
+
+	virtual void PostInitializeComponents() override;
+
+	void SetTargetActor(AActor* NewTarget);
+
+	UFUNCTION()
+	void OnPawnSeen(APawn* Pawn);
+
+public:
+
+	UFUNCTION()
+	void OnHealthChanged(AActor* InstigatorActor, UGRAttributeComponent* OwningComp, float NewHealth, float Delta);
+
 };

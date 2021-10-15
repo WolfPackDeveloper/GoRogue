@@ -49,7 +49,7 @@ void AGRMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent
 	if (AttributeComp)
 	{
 		// minus in front of DamageAmount to apply the change as damage, not healing
-		AttributeComp->ApplyHealthChange(-DamageAmount);
+		AttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount);
 
 		//Destroy();
 

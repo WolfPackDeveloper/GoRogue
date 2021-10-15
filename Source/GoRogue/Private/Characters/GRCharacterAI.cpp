@@ -2,26 +2,78 @@
 
 
 #include "Characters/GRCharacterAI.h"
+#include "Components/GRAttributeComponent.h"
 
-// Sets default values
+#include "AIController.h"
+#include "BrainComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Perception/PawnSensingComponent.h"
+
+#include "DrawDebugHelpers.h"
+
 AGRCharacterAI::AGRCharacterAI()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+    HealthComp = CreateDefaultSubobject<UGRAttributeComponent>("HealthComp");
 
+    PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComp"));
+
+    AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
-// Called when the game starts or when spawned
-void AGRCharacterAI::BeginPlay()
+void AGRCharacterAI::PostInitializeComponents()
 {
-	Super::BeginPlay();
-	
+    Super::PostInitializeComponents();
+    
+    PawnSensingComp->OnSeePawn.AddDynamic(this, &AGRCharacterAI::OnPawnSeen);
+    HealthComp->OnHealthChanged.AddDynamic(this, &AGRCharacterAI::OnHealthChanged);
 }
 
-// Called every frame
-void AGRCharacterAI::Tick(float DeltaTime)
+void AGRCharacterAI::SetTargetActor(AActor* NewTarget)
 {
-	Super::Tick(DeltaTime);
+    FName ValueKeyName = "TargetActor";
 
+    AAIController* AIC = Cast<AAIController>(GetController());
+
+    if (AIC)
+    {
+        AIC->GetBlackboardComponent()->SetValueAsObject(ValueKeyName, NewTarget);
+    }
 }
 
+void AGRCharacterAI::OnPawnSeen(APawn* Pawn)
+{
+ 
+    SetTargetActor(Pawn);
+
+    DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, 4.f, true);
+}
+
+void AGRCharacterAI::OnHealthChanged(AActor* InstigatorActor, UGRAttributeComponent* OwningComp, float NewHealth, float Delta)
+{
+    // Если наносится урон - начинаем мигать.
+    if (Delta < 0.0f)
+    {
+        
+        if (InstigatorActor != this)
+        {
+            SetTargetActor(InstigatorActor);
+        }
+
+        if (NewHealth <= 0.f)
+        {
+            // Stop BT
+            AAIController* AIC = Cast<AAIController>(GetController());
+            if (AIC)
+            {
+                AIC->GetBrainComponent()->StopLogic("Killed");
+            }
+
+            // Ragdoll
+            GetMesh()->SetAllBodiesSimulatePhysics(true);
+            GetMesh()->SetCollisionProfileName("Ragdoll");
+
+            // Lifespan
+            SetLifeSpan(10.f);
+        }
+    }
+}

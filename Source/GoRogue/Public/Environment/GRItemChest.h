@@ -14,6 +14,11 @@ class GOROGUE_API AGRItemChest : public AActor, public IGRGameplayInterface
 {
 	GENERATED_BODY()
 
+public:
+
+	// Sets default values for this actor's properties
+	AGRItemChest();
+
 protected:
 
 	UPROPERTY(VisibleAnywhere)
@@ -26,21 +31,7 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	float TargetPitch = 110.f;
-
-private:
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:	
 	
-	// Sets default values for this actor's properties
-	AGRItemChest();
-	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 	// Interface implementation
 	void Interact_Implementation(APawn* InstigationPawn);
 };

@@ -110,7 +110,7 @@ void AGRCharacterBase::BeginPlay()
 	Super::BeginPlay();
 
 	// Update UI Helthbar Value
-	HealthComp->ApplyHealthChange(0.f);
+	HealthComp->ApplyHealthChange(this, 0.f);
 	
 }
 
@@ -136,10 +136,6 @@ void AGRCharacterBase::MoveRight(float Value)
 
 void AGRCharacterBase::PrimaryAttack()
 {
-	//float DelayTime = 0.2f;
-
-	//PlayAnimMontage(AttackAnim);
-	
 	StartAttackEffects();
 
 	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &AGRCharacterBase::PrimaryAttack_TimeElapsed, AttackAnimDelay);
@@ -152,8 +148,6 @@ void AGRCharacterBase::PrimaryAttack_TimeElapsed()
 
 void AGRCharacterBase::BlackHoleAttack()
 {
-	//PlayAnimMontage(AttackAnim);
-
 	StartAttackEffects();
 
 	GetWorldTimerManager().SetTimer(TimerHandle_BlackholeAttack, this, &AGRCharacterBase::BlackholeAttack_TimeElapsed, AttackAnimDelay);
@@ -166,8 +160,6 @@ void AGRCharacterBase::BlackholeAttack_TimeElapsed()
 
 void AGRCharacterBase::Dash()
 {
-	//PlayAnimMontage(AttackAnim);
-
 	StartAttackEffects();
 
 	GetWorldTimerManager().SetTimer(TimerHandle_Dash, this, &AGRCharacterBase::Dash_TimeElapsed, AttackAnimDelay);

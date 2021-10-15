@@ -9,6 +9,28 @@ UGRAttributeComponent::UGRAttributeComponent()
 	Health = HealthMax;
 }
 
+UGRAttributeComponent* UGRAttributeComponent::GetAttributes(AActor* FromActor)
+{
+	if (FromActor)
+	{
+		return Cast<UGRAttributeComponent>(FromActor->GetComponentByClass(UGRAttributeComponent::StaticClass()));
+	}
+	
+	return nullptr;
+}
+
+bool UGRAttributeComponent::IsActorAlive(AActor* Actor)
+{
+	UGRAttributeComponent* HealthComp = GetAttributes(Actor);
+	
+	if (HealthComp)
+	{
+		return HealthComp->IsAlive();
+	}
+	
+	return false;
+}
+
 bool UGRAttributeComponent::IsAlive() const
 {
 	return Health > 0.f;
@@ -24,7 +46,7 @@ float UGRAttributeComponent::GetHealthMax() const
 	return HealthMax;
 }
 
-bool UGRAttributeComponent::ApplyHealthChange(float Delta)
+bool UGRAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
 	//Health += Delta;
 	float OldHealth = Health;
@@ -33,7 +55,7 @@ bool UGRAttributeComponent::ApplyHealthChange(float Delta)
 
 	float ActualDelta = Health - OldHealth;
 
-	OnHealthChanged.Broadcast(nullptr, this, Health, ActualDelta);
+	OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
 
 	return ActualDelta != 0.f;
 }

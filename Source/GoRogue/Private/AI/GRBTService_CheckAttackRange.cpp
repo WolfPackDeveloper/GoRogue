@@ -15,12 +15,13 @@ void UGRBTService_CheckAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp, 
 	// Check distance berween ai pawn and target actor.
 	
 	float ShotDistance = 2000.f;
+	FName TargetActorValName = "TargetActor";
 
 	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
 
 	if (ensure(BlackboardComp))
 	{
-		AActor* TargetActor = Cast<AActor>(BlackboardComp->GetValueAsObject("TargetActor"));
+		AActor* TargetActor = Cast<AActor>(BlackboardComp->GetValueAsObject(TargetActorValName));
 
 		if (TargetActor)
 		{

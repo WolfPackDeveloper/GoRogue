@@ -3,6 +3,7 @@
 
 #include "Characters/GRCharacterAI.h"
 #include "Components/GRAttributeComponent.h"
+#include "Core/GRWorldUserWidget.h"
 
 #include "AIController.h"
 #include "BrainComponent.h"
@@ -58,6 +59,20 @@ void AGRCharacterAI::OnHealthChanged(AActor* InstigatorActor, UGRAttributeCompon
         {
             SetTargetActor(InstigatorActor);
         }
+
+
+        if (ActiveHealthBar == nullptr)
+        {
+			ActiveHealthBar = CreateWidget<UGRWorldUserWidget>(GetWorld(), HealthBarWidgetClass);
+
+			if (ActiveHealthBar)
+			{
+                ActiveHealthBar->AttachedActor = this;
+                ActiveHealthBar->AddToViewport();
+			}
+        }
+
+        GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
 
         if (NewHealth <= 0.f)
         {

@@ -77,3 +77,19 @@ void AGRGameModeBase::StartPlay()
 
 	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &AGRGameModeBase::SpawnBotTimerElapsed, SpawnTimerInterval, true);
 }
+
+void AGRGameModeBase::KillAll()
+{
+	for (TActorIterator<AGRCharacterAI> It(GetWorld()); It; ++It)
+	{
+		AGRCharacterAI* Bot = *It;
+
+		//UGRAttributeComponent* HealthComp = Cast<UGRAttributeComponent>(Bot->GetComponentByClass(UGRAttributeComponent::StaticClass()));
+		UGRAttributeComponent* HealthComp = UGRAttributeComponent::GetAttributes(Bot);
+
+		if (ensure(HealthComp) && HealthComp->IsAlive())
+		{
+			HealthComp->Kill(this); // Pass in player for kill credit.
+		}
+	}
+}

@@ -8,7 +8,7 @@ public class GoRogue : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "AIModule", "GameplayTasks" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "AIModule", "GameplayTasks", "UMG" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
@@ -20,7 +20,8 @@ public class GoRogue : ModuleRules
 			"GoRogue/Public/Core",
 			"GoRogue/Public/Environment",
 			"GoRogue/Public/Interfaces",
-			"GoRogue/Public/Weapon"
+			"GoRogue/Public/Weapon",
+			"GoRogue/Public/Widgets"
 		});
 
 

@@ -202,6 +202,11 @@ void AGRCharacterBase::OnHealthChanged(AActor* InstigatorActor, UGRAttributeComp
 
 }
 
+void AGRCharacterBase::HealSelf(float Amount)
+{
+	HealthComp->ApplyHealthChange(this, Amount /* = 100.f*/);
+}
+
 // Called every frame
 void AGRCharacterBase::Tick(float DeltaTime)
 {

@@ -19,6 +19,11 @@ UGRAttributeComponent* UGRAttributeComponent::GetAttributes(AActor* FromActor)
 	return nullptr;
 }
 
+void UGRAttributeComponent::Kill(AActor* InstigatorActor)
+{
+	ApplyHealthChange(InstigatorActor, -GetHealthMax());
+}
+
 bool UGRAttributeComponent::IsActorAlive(AActor* Actor)
 {
 	UGRAttributeComponent* HealthComp = GetAttributes(Actor);
@@ -48,6 +53,11 @@ float UGRAttributeComponent::GetHealthMax() const
 
 bool UGRAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
+	if (!GetOwner()->CanBeDamaged())
+	{
+		return false;
+	}
+	
 	//Health += Delta;
 	float OldHealth = Health;
 

@@ -7,6 +7,7 @@
 #include "GRCharacterAI.generated.h"
 
 class UGRAttributeComponent;
+class UGRWorldUserWidget;
 
 class UPawnSensingComponent;
 
@@ -21,6 +22,12 @@ public:
 
 protected:
 	
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UGRWorldUserWidget> HealthBarWidgetClass;
+
+	UPROPERTY()
+	UGRWorldUserWidget* ActiveHealthBar = nullptr;
+
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UGRAttributeComponent* HealthComp = nullptr;
 

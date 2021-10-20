@@ -33,6 +33,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	static UGRAttributeComponent* GetAttributes(AActor* FromActor);
 	
+	UFUNCTION()
+	void Kill(AActor* InstigatorActor);
+
 	UFUNCTION(BlueprintCallable, Category = "Attributes", meta = (DisplayName = "IsAlive"))
 	static bool IsActorAlive(AActor* Actor);
 

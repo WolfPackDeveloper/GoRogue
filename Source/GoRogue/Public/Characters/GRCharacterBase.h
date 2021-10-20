@@ -115,6 +115,9 @@ public:
 	UFUNCTION()
 	void OnHealthChanged(AActor* InstigatorActor, UGRAttributeComponent* OwningComp, float NewHealth, float Delta);
 
+	UFUNCTION(Exec)
+	void HealSelf(float Amount = 100.f);
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

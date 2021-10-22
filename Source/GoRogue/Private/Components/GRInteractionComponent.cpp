@@ -6,6 +6,8 @@
 
 #include "Kismet/KismetSystemLibrary.h" //Trace
 
+static TAutoConsoleVariable<bool> CVarDrawDebugInteraction(TEXT("su.InteractionDrawDebug"), false, TEXT("Enable Debug Lines for Interact Components."), ECVF_Cheat);
+
 // Sets default values for this component's properties
 UGRInteractionComponent::UGRInteractionComponent()
 {
@@ -37,6 +39,7 @@ void UGRInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 
 void UGRInteractionComponent::PrimaryInterract()
 {
+	bool bDrawDebug = CVarDrawDebugInteraction.GetValueOnGameThread();
 	float SightLength = 1000.f;
 	float ShapeSize = 30.f;
 	float Duration = 2.f;
@@ -56,14 +59,6 @@ void UGRInteractionComponent::PrimaryInterract()
 
 	FVector TraceEnd = CharEyeLocation + (CharEyeRotation.Vector() * SightLength);
 
-	//FHitResult HitResult;
-	//bool bHit = GetWorld()->LineTraceSingleByObjectType(
-	//	HitResult,
-	//	CharEyeLocation,
-	//	TraceEnd,
-	//	ObjectQueryParams
-	//);
-
 	TArray<FHitResult> Hits;
 	FCollisionShape Shape;
 	Shape.SetSphere(ShapeSize);
@@ -81,6 +76,11 @@ void UGRInteractionComponent::PrimaryInterract()
 
 	for (FHitResult Hit : Hits)
 	{
+		if (bDrawDebug)
+		{
+			UKismetSystemLibrary::DrawDebugSphere(GetWorld(), Hit.ImpactPoint, ShapeSize, ShapeSegmentsNum, LineColor, Duration, Thickness);
+		}
+		
 		AActor* HitActor = Hit.GetActor();
 
 		if (HitActor)
@@ -93,23 +93,11 @@ void UGRInteractionComponent::PrimaryInterract()
 				break;
 			}
 		}
-
-		UKismetSystemLibrary::DrawDebugSphere(GetWorld(), Hit.ImpactPoint, ShapeSize, ShapeSegmentsNum, LineColor, Duration, Thickness);
 	}
 
-	//if (bHit)
-	//{
-	//	AActor* HitActor = HitResult.GetActor();
-	//	
-	//	if (HitActor->Implements<UGRGameplayInterface>())
-	//	{
-	//		APawn* OwnerPawn = Cast<APawn>(Owner);
-	//		
-	//		IGRGameplayInterface::Execute_Interact(HitActor, OwnerPawn);
-	//	}
-	//}
-
-	// Debug
-	UKismetSystemLibrary::DrawDebugLine(GetWorld(), CharEyeLocation, TraceEnd, LineColor, Duration, Thickness);
+	if (bDrawDebug)
+	{
+		UKismetSystemLibrary::DrawDebugLine(GetWorld(), CharEyeLocation, TraceEnd, LineColor, Duration, Thickness);
+	}
 }
 

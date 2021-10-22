@@ -8,13 +8,16 @@
 
 
 
+UGRBTService_CheckAttackRange::UGRBTService_CheckAttackRange()
+{
+
+}
+
 void UGRBTService_CheckAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
 	// Check distance berween ai pawn and target actor.
-	
-	float ShotDistance = 2000.f;
 	FName TargetActorValName = "TargetActor";
 
 	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
@@ -26,27 +29,21 @@ void UGRBTService_CheckAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp, 
 		if (TargetActor)
 		{
 			AAIController* MyController = OwnerComp.GetAIOwner();
+			APawn* AIPawn = MyController->GetPawn();
 
-			if (ensure(MyController))
+			if (ensure(AIPawn))
 			{
-				APawn* AIPawn = MyController->GetPawn();
-
-				if (ensure(AIPawn))
+				float DistanceTo = FVector::Distance(TargetActor->GetActorLocation(), AIPawn->GetActorLocation());
+				bool bWithinRange = DistanceTo < MaxAttackRange;
+				bool bHasLOS = false;
+			
+				if (bWithinRange)
 				{
-					float DistanceTo = FVector::Distance(TargetActor->GetActorLocation(), AIPawn->GetActorLocation());
-
-					bool bHasLOS = false;
-					bool bWithinRange = DistanceTo < ShotDistance;
-					if (bWithinRange)
-					{
-						bHasLOS = MyController->LineOfSightTo(TargetActor);
-					}
-					
-					BlackboardComp->SetValueAsBool(AttackRangeKey.SelectedKeyName, (bWithinRange && bHasLOS));
+					bHasLOS = MyController->LineOfSightTo(TargetActor);
 				}
 
+				BlackboardComp->SetValueAsBool(AttackRangeKey.SelectedKeyName, (bWithinRange && bHasLOS));
 			}
 		}
 	}
-
 }

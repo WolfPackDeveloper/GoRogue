@@ -30,8 +30,6 @@ EBTNodeResult::Type UGRBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent& 
 			EBTNodeResult::Failed;
 		}
 
-		FVector MuzzleLocation = MyPawn->GetMesh()->GetSocketLocation(MuzzleSocketName);
-
 		AActor* TargetActor = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(TargetActorValName));
 		if (TargetActor == nullptr)
 		{
@@ -43,6 +41,7 @@ EBTNodeResult::Type UGRBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent& 
 			EBTNodeResult::Failed;
 		}
 
+		FVector MuzzleLocation = MyPawn->GetMesh()->GetSocketLocation(MuzzleSocketName);
 		FVector Direction = TargetActor->GetActorLocation() - MuzzleLocation;
 		FRotator MuzzleRotation = Direction.Rotation();
 

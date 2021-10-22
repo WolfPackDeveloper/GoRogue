@@ -3,11 +3,14 @@
 
 #include "Core/GRGameModeBase.h"
 #include "Characters/GRCharacterAI.h"
+#include "Characters/GRCharacterBase.h"
 #include "Components/GRAttributeComponent.h"
 
 #include "EnvironmentQuery/EnvQueryInstanceBlueprintWrapper.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "EngineUtils.h"
+
+static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("su.SpawnBots"), true, TEXT("Enable spawning of bots via timer."), ECVF_Cheat);
 
 AGRGameModeBase::AGRGameModeBase()
 {
@@ -16,6 +19,12 @@ AGRGameModeBase::AGRGameModeBase()
 
 void AGRGameModeBase::SpawnBotTimerElapsed()
 {
+	if (!CVarSpawnBots.GetValueOnGameThread())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Bot spawning disabled via cvar 'CVarSpawnBots'."));
+		return;
+	}
+	
 	int32 NrOfAliveBots = 0;
 
 	for (TActorIterator<AGRCharacterAI> It(GetWorld()); It; ++It)
@@ -70,12 +79,38 @@ void AGRGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryI
 	}
 }
 
+void AGRGameModeBase::RespawnPlayerElapsed(AController* Controller)
+{
+	if (ensure(Controller))
+	{
+		Controller->UnPossess();
+		
+		RestartPlayer(Controller);
+	}
+}
 
 void AGRGameModeBase::StartPlay()
 {
 	Super::StartPlay();
 
 	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &AGRGameModeBase::SpawnBotTimerElapsed, SpawnTimerInterval, true);
+}
+
+void AGRGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
+{
+	AGRCharacterBase* Player = Cast<AGRCharacterBase>(VictimActor);
+
+	if (Player)
+	{
+		float RespawnDelay = 2.f;
+		FTimerHandle TimerHandle_RespawnDelay;
+		FTimerDelegate Delegate;
+		Delegate.BindUFunction(this, "RespawnPlayerElapsed", Player->GetController());
+
+		GetWorldTimerManager().SetTimer(TimerHandle_RespawnDelay, Delegate, RespawnDelay, false);
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("OnActorKilled: Victim: $s, Killer: %s"), *GetNameSafe(VictimActor), *GetNameSafe(Killer));
 }
 
 void AGRGameModeBase::KillAll()

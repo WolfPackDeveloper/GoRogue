@@ -13,13 +13,20 @@ UCLASS()
 class GOROGUE_API UGRBTService_CheckAttackRange : public UBTService
 {
 	GENERATED_BODY()
-	
+
+public:
+
+	UGRBTService_CheckAttackRange();
+
 protected:
+
+	/* Max desired attack range of AI pawn */
+	UPROPERTY(EditAnywhere, Category = "AI")
+	float MaxAttackRange = 2000.f;
 
 	UPROPERTY(EditAnywhere, Category = "AI")
 	FBlackboardKeySelector AttackRangeKey;
 
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
-
 
 };

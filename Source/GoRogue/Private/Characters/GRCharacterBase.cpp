@@ -177,6 +177,11 @@ void AGRCharacterBase::StartAttackEffects()
 	UGameplayStatics::SpawnEmitterAttached(CastingEffect, GetMesh(), HandSocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
 }
 
+FVector AGRCharacterBase::GetPawnViewLocation() const
+{
+	return Camera->GetComponentLocation();
+}
+
 void AGRCharacterBase::PrimaryInterract()
 {
 	if (InteractionComp)

@@ -110,6 +110,8 @@ protected:
 
 	void StartAttackEffects();
 
+	virtual FVector GetPawnViewLocation() const override;
+
 public:	
 	
 	UFUNCTION()

@@ -24,7 +24,8 @@ void AGRPowerup_HealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 		return;
 	}
 
-	UGRAttributeComponent* AttributeComp = Cast<UGRAttributeComponent>(InstigatorPawn->GetComponentByClass(UGRAttributeComponent::StaticClass()));
+	UGRAttributeComponent* AttributeComp = UGRAttributeComponent::GetAttributes(InstigatorPawn);
+	
 	// Check if not already at max health
 	if (ensure(AttributeComp) && !AttributeComp->IsFullHealth())
 	{

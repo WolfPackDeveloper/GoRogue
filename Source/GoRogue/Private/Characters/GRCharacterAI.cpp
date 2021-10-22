@@ -8,6 +8,8 @@
 #include "AIController.h"
 #include "BrainComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/PawnSensingComponent.h"
 
 #include "DrawDebugHelpers.h"
@@ -19,6 +21,9 @@ AGRCharacterAI::AGRCharacterAI()
     PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComp"));
 
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+    //GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
+    //GetMesh()->SetGenerateOverlapEvents(true);
 }
 
 void AGRCharacterAI::PostInitializeComponents()
@@ -74,6 +79,7 @@ void AGRCharacterAI::OnHealthChanged(AActor* InstigatorActor, UGRAttributeCompon
 
         GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
 
+        // Died
         if (NewHealth <= 0.f)
         {
             // Stop BT
@@ -86,6 +92,8 @@ void AGRCharacterAI::OnHealthChanged(AActor* InstigatorActor, UGRAttributeCompon
             // Ragdoll
             GetMesh()->SetAllBodiesSimulatePhysics(true);
             GetMesh()->SetCollisionProfileName("Ragdoll");
+            GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+            GetCharacterMovement()->DisableMovement();
 
             // Lifespan
             SetLifeSpan(10.f);

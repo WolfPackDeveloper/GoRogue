@@ -2,6 +2,9 @@
 
 
 #include "Components/GRAttributeComponent.h"
+#include "Core/GRGameModeBase.h"
+
+static TAutoConsoleVariable<float> CVarDamageMultiplier(TEXT("su.DamageMultiplier"), 1.f, TEXT("Global Damage Modifier for Attribute Component."), ECVF_Cheat);
 
 // Sets default values for this component's properties
 UGRAttributeComponent::UGRAttributeComponent()
@@ -46,6 +49,12 @@ bool UGRAttributeComponent::IsFullHealth() const
 	return Health == HealthMax;
 }
 
+
+float UGRAttributeComponent::GetHealth() const
+{
+	return Health;
+}
+
 float UGRAttributeComponent::GetHealthMax() const
 {
 	return HealthMax;
@@ -53,12 +62,18 @@ float UGRAttributeComponent::GetHealthMax() const
 
 bool UGRAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
-	if (!GetOwner()->CanBeDamaged())
+	if (!GetOwner()->CanBeDamaged() && Delta < 0.f)
 	{
 		return false;
 	}
 	
-	//Health += Delta;
+	if (Delta < 0.f)
+	{
+		float DamageMultiplier = CVarDamageMultiplier.GetValueOnGameThread();
+
+		Delta *= DamageMultiplier;
+	}
+
 	float OldHealth = Health;
 
 	Health = FMath::Clamp(Health + Delta, 0.f, HealthMax);
@@ -66,6 +81,16 @@ bool UGRAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Del
 	float ActualDelta = Health - OldHealth;
 
 	OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
+
+	// Died
+	if (ActualDelta < 0.f && Health == 0.f)
+	{
+		AGRGameModeBase* GM = Cast<AGRGameModeBase>(GetWorld()->GetAuthGameMode());
+		if (GM)
+		{
+			GM->OnActorKilled(GetOwner(), InstigatorActor);
+		}
+	}
 
 	return ActualDelta != 0.f;
 }

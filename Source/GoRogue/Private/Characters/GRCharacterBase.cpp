@@ -5,6 +5,7 @@
 #include "Components/GRAttributeComponent.h"
 #include "Components/GRInteractionComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "microGAS/GRActionComponent.h"
 
 #include "Animation/AnimMontage.h"
 #include "Camera/CameraComponent.h"
@@ -26,6 +27,7 @@ AGRCharacterBase::AGRCharacterBase()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
 
+	ActionComp = CreateDefaultSubobject<UGRActionComponent>(TEXT("ActionComp"));
 	HealthComp = CreateDefaultSubobject<UGRAttributeComponent>(TEXT("HealthComp"));
 	InteractionComp = CreateDefaultSubobject<UGRInteractionComponent>(TEXT("InteractionComp"));
 
@@ -134,6 +136,16 @@ void AGRCharacterBase::MoveRight(float Value)
 	AddMovementInput(RightVector, Value);
 }
 
+void AGRCharacterBase::SprintStart()
+{
+	ActionComp->StartActionByName(this, "Sprint");
+}
+
+void AGRCharacterBase::SprintStop()
+{
+	ActionComp->StopActionByName(this, "Sprint");
+}
+
 void AGRCharacterBase::PrimaryAttack()
 {
 	StartAttackEffects();
@@ -231,6 +243,9 @@ void AGRCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AGRCharacterBase::SprintStart);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AGRCharacterBase::SprintStop);
+
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AGRCharacterBase::PrimaryAttack);
 	PlayerInputComponent->BindAction("SecondaryAttack", IE_Pressed, this, &AGRCharacterBase::BlackHoleAttack);
 	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &AGRCharacterBase::Dash);

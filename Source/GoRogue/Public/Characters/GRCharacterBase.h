@@ -11,6 +11,7 @@ class UCameraComponent;
 class USpringArmComponent;
 class UParticleSystem;
 
+class UGRActionComponent;
 class UGRAttributeComponent;
 class UGRInteractionComponent;
 
@@ -46,7 +47,10 @@ protected:
 	UGRInteractionComponent* InteractionComp = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UGRAttributeComponent* HealthComp;
+	UGRAttributeComponent* HealthComp = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UGRActionComponent* ActionComp = nullptr;
 
 	// === Attack ===
 
@@ -94,6 +98,10 @@ protected:
 	
 	void MoveRight(float Value);
 	
+	void SprintStart();
+
+	void SprintStop();
+
 	void PrimaryInterract();
 	
 	void PrimaryAttack();

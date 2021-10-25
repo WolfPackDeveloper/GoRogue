@@ -19,6 +19,7 @@ public class GoRogue : ModuleRules
 			"GoRogue/Public/Components",
 			"GoRogue/Public/Core",
 			"GoRogue/Public/Environment",
+			"GoRogue/Public/microGAS",
 			"GoRogue/Public/Interfaces",
 			"GoRogue/Public/Weapon",
 			"GoRogue/Public/Widgets"

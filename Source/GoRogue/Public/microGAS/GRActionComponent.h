@@ -19,7 +19,11 @@ public:
 	UGRActionComponent();
 
 protected:
-	
+
+	/* Granted abilities at game start */
+	UPROPERTY(EditAnywhere, Category = "Actions")
+	TArray<TSubclassOf<UGRAction>> DefaultActions;
+
 	UPROPERTY()
 	TArray<UGRAction*> Actions;
 	

@@ -28,10 +28,10 @@ public:
 
 private:
 
-	// RangeAttack support function
-	FVector GetAimLocation();
+	//// RangeAttack support function
+	//FVector GetAimLocation();
 
-	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
+//	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
 
 protected:
 	
@@ -54,31 +54,31 @@ protected:
 
 	// === Attack ===
 
-	UPROPERTY(Editanywhere, BlueprintReadWrite, Category = "Attack")
-	float ShotDistance = 3000.f;
+	//UPROPERTY(Editanywhere, BlueprintReadWrite, Category = "Attack")
+	//float ShotDistance = 3000.f;
 
-	UPROPERTY(Editanywhere, Category = "Attack")
-	float AttackAnimDelay = 0.2f;
+	//UPROPERTY(Editanywhere, Category = "Attack")
+	//float AttackAnimDelay = 0.2f;
 
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	UAnimMontage* AttackAnim = nullptr;
+	//UPROPERTY(EditAnywhere, Category = "Attack")
+	//UAnimMontage* AttackAnim = nullptr;
 
-	/* Particle System played during attack animation */
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	UParticleSystem* CastingEffect = nullptr;
+	///* Particle System played during attack animation */
+	//UPROPERTY(EditAnywhere, Category = "Attack")
+	//UParticleSystem* CastingEffect = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<AActor> ProjectileClass;
+	//UPROPERTY(EditAnywhere, Category = "Attack")
+	//TSubclassOf<AActor> ProjectileClass;
 
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<AActor> BlackHoleProjectileClass;
+	//UPROPERTY(EditAnywhere, Category = "Attack")
+	//TSubclassOf<AActor> BlackHoleProjectileClass;
 
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<AActor> DashProjectileClass;
+	//UPROPERTY(EditAnywhere, Category = "Attack")
+	//TSubclassOf<AActor> DashProjectileClass;
 
-	FTimerHandle TimerHandle_PrimaryAttack;
-	FTimerHandle TimerHandle_BlackholeAttack;
-	FTimerHandle TimerHandle_Dash;
+//	FTimerHandle TimerHandle_PrimaryAttack;
+//	FTimerHandle TimerHandle_BlackholeAttack;
+//	FTimerHandle TimerHandle_Dash;
 
 	// === Effects ===
 
@@ -86,8 +86,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Effects")
 	FName TimeToHitParamName = "TimeToHit";
 
-	UPROPERTY(VisibleAnywhere, Category = "Effects")
-	FName HandSocketName = "Muzzle_01";
+	//UPROPERTY(VisibleAnywhere, Category = "Effects")
+	//FName HandSocketName = "Muzzle_01";
 
 protected:
 
@@ -106,17 +106,17 @@ protected:
 	
 	void PrimaryAttack();
 	
-	void PrimaryAttack_TimeElapsed();
+//	void PrimaryAttack_TimeElapsed();
 
 	void BlackHoleAttack();
 
-	void BlackholeAttack_TimeElapsed();
+//	void BlackholeAttack_TimeElapsed();
 
 	void Dash();
 
-	void Dash_TimeElapsed();
+//	void Dash_TimeElapsed();
 
-	void StartAttackEffects();
+//	void StartAttackEffects();
 
 	virtual FVector GetPawnViewLocation() const override;
 

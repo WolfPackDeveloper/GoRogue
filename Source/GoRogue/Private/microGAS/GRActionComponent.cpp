@@ -20,8 +20,10 @@ void UGRActionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
+	for (auto ActionClass : DefaultActions)
+	{
+		AddAction(ActionClass);
+	}
 }
 
 

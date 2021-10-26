@@ -6,6 +6,8 @@
 #include "UObject/NoExportTypes.h"
 #include "GRAction.generated.h"
 
+class UWorld;
+
 /**
  * 
  */
@@ -26,5 +28,5 @@ public:
 	UFUNCTION(BlueprintNativeEvent, Category = "Action")
 	void StopAction(AActor* Instigator);
 
-
+	UWorld* GetWorld() const override;
 };

@@ -4,8 +4,10 @@
 #include "Weapon/GRMagicProjectile.h"
 #include "Components/GRAttributeComponent.h"
 #include "Core/GRGameplayFunctionLibrary.h"
+#include "microGAS/GRActionComponent.h"
 
 #include "Components/SphereComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 // Sets default values
 AGRMagicProjectile::AGRMagicProjectile()
@@ -15,9 +17,23 @@ AGRMagicProjectile::AGRMagicProjectile()
 }
 
 void AGRMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
+{	
 	if (!OtherActor || OtherActor == GetInstigator())
 	{
+		return;
+	}
+
+	// Проверяем существование тэга.
+	//static FGameplayTag Tag = FGameplayTag::RequestGameplayTag("Status.Parrying");
+
+	UGRActionComponent* ActionComp = Cast<UGRActionComponent>(OtherActor->GetComponentByClass(UGRActionComponent::StaticClass()));
+
+	if (ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag))
+	{
+		MoveComp->Velocity = -MoveComp->Velocity;
+
+		// при парировании меняем "владельца" снаряда, чтобы он мог нанести урон тому, кто его выпустил.
+		SetInstigator(Cast<APawn>(OtherActor));
 		return;
 	}
 
@@ -26,13 +42,5 @@ void AGRMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent
 		Explode();
 	}
 	
-	//UGRAttributeComponent* AttributeComp = Cast<UGRAttributeComponent>(OtherActor->GetComponentByClass(UGRAttributeComponent::StaticClass()));
-	//if (AttributeComp)
-	//{
-	//	// minus in front of DamageAmount to apply the change as damage, not healing
-	//	AttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount);
-	//	// Only explode when we hit something valid
-	//	Explode();
-	//}
 }
 

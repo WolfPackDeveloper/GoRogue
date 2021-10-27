@@ -3,13 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-//#include "GameFramework/Actor.h"
 #include "Weapon/GRProjectileBase.h"
+#include "GameplayTagContainer.h"
 #include "GRMagicProjectile.generated.h"
-
-//class USphereComponent;
-//class UProjectileMovementComponent;
-//class UParticleSystemComponent;
 
 UCLASS()
 class GOROGUE_API AGRMagicProjectile : public AGRProjectileBase
@@ -26,26 +22,15 @@ private:
 
 protected:
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage")
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
 	float DamageAmount = 20.f;
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	//USphereComponent* SphereComp = nullptr;
-
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	//UProjectileMovementComponent* MovementComp = nullptr;
-
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	//UParticleSystemComponent* EffectComp = nullptr;
-	
-	// Called when the game starts or when spawned
-	//virtual void BeginPlay() override;
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	FGameplayTag ParryTag;
 
 	UFUNCTION()
 	void OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 public:	
-	// Called every frame
-	//virtual void Tick(float DeltaTime) override;
 
 };

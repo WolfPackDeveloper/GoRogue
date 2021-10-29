@@ -23,9 +23,6 @@ void AGRMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent
 		return;
 	}
 
-	// Проверяем существование тэга.
-	//static FGameplayTag Tag = FGameplayTag::RequestGameplayTag("Status.Parrying");
-
 	UGRActionComponent* ActionComp = Cast<UGRActionComponent>(OtherActor->GetComponentByClass(UGRActionComponent::StaticClass()));
 
 	if (ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag))

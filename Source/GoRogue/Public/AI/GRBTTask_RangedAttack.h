@@ -24,7 +24,7 @@ protected:
 
 	/* Max Random Bullet Spread (in Degrees) in positive and negative angle (shared between Yaw and Pitch) */
 	UPROPERTY(EditAnywhere, Category = "AI")
-	float MaxBulletSpread = 2.f;
+	float MaxBulletSpread = 3.f;
 
 	UPROPERTY(EditAnywhere, Category = "AI")
 	TSubclassOf<AActor> ProjectileClass;

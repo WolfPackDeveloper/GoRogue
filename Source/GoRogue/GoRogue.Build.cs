@@ -25,7 +25,6 @@ public class GoRogue : ModuleRules
 			"GoRogue/Public/Widgets"
 		});
 
-
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
 

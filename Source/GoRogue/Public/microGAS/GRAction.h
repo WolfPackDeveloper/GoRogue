@@ -50,7 +50,7 @@ public:
 	void StartAction(AActor* Instigator);
 	virtual void StartAction_Implementation(AActor* Instigator);
 
-	UFUNCTION(BlueprintNativeEvent, Category = "Action")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Action")
 	void StopAction(AActor* Instigator);
 	virtual void StopAction_Implementation(AActor* Instigator);
 

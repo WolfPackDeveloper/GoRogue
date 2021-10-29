@@ -4,6 +4,7 @@
 #include "Characters/GRCharacterAI.h"
 #include "Components/GRAttributeComponent.h"
 #include "Core/GRWorldUserWidget.h"
+#include "microGAS/GRActionComponent.h"
 
 #include "AIController.h"
 #include "BrainComponent.h"
@@ -16,7 +17,9 @@
 
 AGRCharacterAI::AGRCharacterAI()
 {
-    HealthComp = CreateDefaultSubobject<UGRAttributeComponent>("HealthComp");
+    ActionComp = CreateDefaultSubobject<UGRActionComponent>(TEXT("ActionComp"));
+    
+    HealthComp = CreateDefaultSubobject<UGRAttributeComponent>(TEXT("HealthComp"));
 
     PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComp"));
 
@@ -51,7 +54,7 @@ void AGRCharacterAI::OnPawnSeen(APawn* Pawn)
  
     SetTargetActor(Pawn);
 
-    DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, 4.f, true);
+    //DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, 4.f, true);
 }
 
 void AGRCharacterAI::OnHealthChanged(AActor* InstigatorActor, UGRAttributeComponent* OwningComp, float NewHealth, float Delta)

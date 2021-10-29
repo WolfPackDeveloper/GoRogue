@@ -7,6 +7,7 @@
 #include "GRCharacterAI.generated.h"
 
 class UGRAttributeComponent;
+class UGRActionComponent;
 class UGRWorldUserWidget;
 
 class UPawnSensingComponent;
@@ -33,6 +34,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UPawnSensingComponent* PawnSensingComp = nullptr;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UGRActionComponent* ActionComp = nullptr;
 
 	/* VisibleAnywhere = read-only, still useful to view in-editor and enforce a convention. */
 	UPROPERTY(VisibleAnywhere, Category = "Effects")

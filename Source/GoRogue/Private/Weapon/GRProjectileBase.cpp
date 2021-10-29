@@ -26,7 +26,7 @@ AGRProjectileBase::AGRProjectileBase()
 	MoveComp->bRotationFollowsVelocity = true;
 	MoveComp->bInitialVelocityInLocalSpace = true;
 	MoveComp->ProjectileGravityScale = 0.f;
-	MoveComp->InitialSpeed = 2000.f;
+	MoveComp->InitialSpeed = InitialSpeed;
 
 	AudioComp = CreateDefaultSubobject<UAudioComponent>("AudioComp");
 	AudioComp->SetupAttachment(RootComponent);

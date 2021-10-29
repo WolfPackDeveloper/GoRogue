@@ -17,7 +17,10 @@ UCLASS(ABSTRACT) // 'ABSTRACT' marks this class as incomplete, keeping this out 
 class GOROGUE_API AGRProjectileBase : public AActor
 {
 	GENERATED_BODY()
-	
+
+private:
+
+	float InitialSpeed = 2000.f;
 
 public:
 	// Sets default values for this actor's properties

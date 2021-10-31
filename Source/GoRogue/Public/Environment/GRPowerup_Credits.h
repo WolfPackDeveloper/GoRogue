@@ -4,27 +4,26 @@
 
 #include "CoreMinimal.h"
 #include "Core/GRPowerupActor.h"
-#include "GRPowerup_HealthPotion.generated.h"
+#include "GRPowerup_Credits.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GOROGUE_API AGRPowerup_HealthPotion : public AGRPowerupActor
+class GOROGUE_API AGRPowerup_Credits : public AGRPowerupActor
 {
 	GENERATED_BODY()
 	
 public:
 
-	AGRPowerup_HealthPotion();
+	AGRPowerup_Credits();
 
 protected:
 
-	UPROPERTY(EditAnywhere, Category = "Components")
-	int32 CreditCost = 50;
+	UPROPERTY(EditAnywhere, Category = "Credits")
+	int32 CreditsAmount = 80;
 
 public:
 
 	void Interact_Implementation(APawn* InstigatorPawn) override;
-
 };

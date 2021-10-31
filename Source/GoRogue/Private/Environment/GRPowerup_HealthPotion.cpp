@@ -3,6 +3,7 @@
 
 #include "Environment/GRPowerup_HealthPotion.h"
 #include "Components/GRAttributeComponent.h"
+#include "Core/GRPlayerState.h"
 
 //#include "Components/StaticMeshComponent.h"
 
@@ -10,10 +11,7 @@
 
 AGRPowerup_HealthPotion::AGRPowerup_HealthPotion()
 {
-	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
-	// Disable collision, instead we use SphereComp to handle interaction queries
-	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	MeshComp->SetupAttachment(RootComponent);
+
 }
 
 
@@ -29,10 +27,14 @@ void AGRPowerup_HealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 	// Check if not already at max health
 	if (ensure(AttributeComp) && !AttributeComp->IsFullHealth())
 	{
-		// Only activate if healed successfully
-		if (AttributeComp->ApplyHealthChange(this, AttributeComp->GetHealthMax()))
+		if (AGRPlayerState* PS = InstigatorPawn->GetPlayerState<AGRPlayerState>())
 		{
-			HideAndCooldownPowerup();
+			
+			if (PS->RemoveCredits(CreditCost) && AttributeComp->ApplyHealthChange(this, AttributeComp->GetHealthMax()))
+			{
+				// Only activate if healed successfully
+				HideAndCooldownPowerup();
+			}
 		}
 	}
 }

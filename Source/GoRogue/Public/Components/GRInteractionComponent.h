@@ -12,14 +12,16 @@ class GOROGUE_API UGRInteractionComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
+public:
+
+	// Sets default values for this component's properties
+	UGRInteractionComponent();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 public:	
-	
-	// Sets default values for this component's properties
-	UGRInteractionComponent();
 	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

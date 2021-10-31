@@ -8,8 +8,9 @@
 #include "GRPowerupActor.generated.h"
 
 class USphereComponent;
+class UStaticMeshComponent;
 
-UCLASS()
+UCLASS(ABSTRACT)
 class GOROGUE_API AGRPowerupActor : public AActor, public IGRGameplayInterface
 {
 	GENERATED_BODY()
@@ -25,6 +26,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	USphereComponent* SphereComp;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UStaticMeshComponent* MeshComp;
 
 	UFUNCTION()
 	void ShowPowerup();

@@ -4,6 +4,7 @@
 #include "Core/GRPowerupActor.h"
 
 #include "Components/SphereComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 // Sets default values
 AGRPowerupActor::AGRPowerupActor()
@@ -14,6 +15,11 @@ AGRPowerupActor::AGRPowerupActor()
 	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	SphereComp->SetCollisionProfileName("Powerup");
 	RootComponent = SphereComp;
+
+	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
+	// Disable collision, instead we use SphereComp to handle interaction queries
+	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MeshComp->SetupAttachment(RootComponent);
 
 }
 

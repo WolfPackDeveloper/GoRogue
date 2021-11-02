@@ -10,74 +10,46 @@
 
 UGRAction_ProjectileAttack::UGRAction_ProjectileAttack()
 {
-	// Was set in header.
-	//AttackDistance = 3000.f;
-	//AttackAnimDelay = 0.2f;
 	HandSocketName = "Muzzle_01";
-}
-
-
-FVector UGRAction_ProjectileAttack::GetAimLocation(ACharacter* InstigatorCharacter)
-{
-	FVector AimLocation = FVector::ZeroVector;
-
-	const APlayerController* PlayerController = InstigatorCharacter->GetController<APlayerController>();
-
-	if (!ensure(PlayerController))
-	{
-		return AimLocation;
-	}
-
-	FVector ViewLocation;
-	FRotator ViewRotation;
-
-	PlayerController->GetPlayerViewPoint(ViewLocation, ViewRotation);
-
-	FVector TraceStart = ViewLocation;
-	FVector ShotDirection = ViewRotation.Vector();
-	FVector TraceEnd = TraceStart + ShotDirection * AttackDistance;
-
-	// "Калибровка" прицела в зависимости от наличия попадания трасировке пути снаряда.
-	FCollisionQueryParams CollisionParams;
-	CollisionParams.AddIgnoredActor(InstigatorCharacter);
-
-	FHitResult HitResult;
-	bool bHit = GetWorld()->LineTraceSingleByChannel(
-		HitResult,
-		TraceStart,
-		TraceEnd,
-		ECC_Visibility,
-		CollisionParams
-	);
-
-	if (bHit)
-	{
-		AimLocation = HitResult.ImpactPoint;
-	}
-	else
-	{
-		AimLocation = TraceEnd;
-	}
-
-	return AimLocation;
 }
 
 void UGRAction_ProjectileAttack::AttackDelay_Elapsed(ACharacter* InstigatorCharacter)
 {
-	if (!ensureAlways(ProjectileClass))
+	if (ensureAlways(ProjectileClass))
 	{
-		return;
+		FVector HandLocarion = InstigatorCharacter->GetMesh()->GetSocketLocation(HandSocketName);
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		SpawnParams.Instigator = InstigatorCharacter;
+
+		FCollisionShape Shape;
+		Shape.SetSphere(TraceShapeRadius);
+
+		FCollisionQueryParams TraceParams;
+		TraceParams.AddIgnoredActor(InstigatorCharacter);
+
+		FCollisionObjectQueryParams ObjParams;
+		ObjParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+		ObjParams.AddObjectTypesToQuery(ECC_WorldStatic);
+		ObjParams.AddObjectTypesToQuery(ECC_Pawn);
+
+		FVector TraceStart = InstigatorCharacter->GetPawnViewLocation();
+		FVector TraceEnd = TraceStart + (InstigatorCharacter->GetControlRotation().Vector() * AttackDistance);
+
+		FHitResult Hit;
+		bool bHit = GetWorld()->SweepSingleByObjectType(Hit, TraceStart, TraceEnd, FQuat::Identity, ObjParams, Shape, TraceParams);
+
+		if (bHit)
+		{
+			TraceEnd = Hit.ImpactPoint;
+		}
+
+		FRotator ProjRotation = FRotationMatrix::MakeFromX(TraceEnd - HandLocarion).Rotator();
+		FTransform SpawnTransform = FTransform(ProjRotation, HandLocarion);
+
+		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTransform, SpawnParams);
 	}
-
-	FVector SpawnLocation = InstigatorCharacter->GetMesh()->GetSocketLocation(HandSocketName);
-	FVector AimLocation = GetAimLocation(InstigatorCharacter);
-	FRotator SpawnRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, AimLocation);
-	FTransform SpawnTM = FTransform(SpawnRotation, SpawnLocation);
-
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnParams.Instigator = InstigatorCharacter;
-	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
 
 	StopAction(InstigatorCharacter);
 }
@@ -91,7 +63,7 @@ void UGRAction_ProjectileAttack::StartAction_Implementation(AActor* Instigator)
 	if (Character)
 	{
 		Character->PlayAnimMontage(AttackAnim);
-		// Casting Effect Plaing
+		// Casting Effect Playing
 		UGameplayStatics::SpawnEmitterAttached(CastingEffect, Character->GetMesh(), HandSocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
 
 		FTimerHandle TimerHandle_AttackDelay;

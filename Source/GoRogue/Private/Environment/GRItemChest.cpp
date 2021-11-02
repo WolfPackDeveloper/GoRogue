@@ -2,7 +2,9 @@
 
 
 #include "Environment/GRItemChest.h"
+
 #include "Components/StaticMeshComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 AGRItemChest::AGRItemChest()
@@ -13,10 +15,25 @@ AGRItemChest::AGRItemChest()
 	LidMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LidMesh"));
 	LidMesh->SetupAttachment(BaseMesh);
 
+	SetReplicates(true);
 }
 
 void AGRItemChest::Interact_Implementation(APawn* InstigationPawn)
 {
-	LidMesh->SetRelativeRotation(FRotator(TargetPitch, 0.f, 0.f));
+	bLidOpened = !bLidOpened;
+	// Manually called for the server
+	OnRep_LidOpened();
 }
 
+void AGRItemChest::OnRep_LidOpened()
+{
+	float CurrPitch = bLidOpened ? TargetPitch : 0.f;
+	LidMesh->SetRelativeRotation(FRotator(CurrPitch, 0.f, 0.f));
+}
+
+void AGRItemChest::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AGRItemChest, bLidOpened);
+}

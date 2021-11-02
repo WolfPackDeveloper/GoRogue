@@ -2,6 +2,7 @@
 
 
 #include "Components/GRInteractionComponent.h"
+#include "Core\GRWorldUserWidget.h"
 #include "Interfaces/GRGameplayInterface.h"
 
 #include "Kismet/KismetSystemLibrary.h" //Trace
@@ -11,57 +12,47 @@ static TAutoConsoleVariable<bool> CVarDrawDebugInteraction(TEXT("su.InteractionD
 // Sets default values for this component's properties
 UGRInteractionComponent::UGRInteractionComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 
-// Called when the game starts
-void UGRInteractionComponent::BeginPlay()
+void UGRInteractionComponent::ServerInteract_Implementation(AActor* InFocus)
 {
-	Super::BeginPlay();
+	if (InFocus == nullptr)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, "No Focus Actor to interact.");
+		return;
+	}
 
-	// ...
-	
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+
+	IGRGameplayInterface::Execute_Interact(InFocus, OwnerPawn);
 }
 
-
-// Called every frame
-void UGRInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
-
-void UGRInteractionComponent::PrimaryInterract()
+void UGRInteractionComponent::FindBestInteractable()
 {
 	bool bDrawDebug = CVarDrawDebugInteraction.GetValueOnGameThread();
-	float SightLength = 1000.f;
-	float ShapeSize = 30.f;
+
+	// Debug properties
 	float Duration = 2.f;
 	float Thickness = 2.f;
 	int ShapeSegmentsNum = 32;
 
-
 	FCollisionObjectQueryParams ObjectQueryParams;
-	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-	
+	ObjectQueryParams.AddObjectTypesToQuery(CollisionChannel);
+
 	AActor* Owner = GetOwner();
-	
+
 	FVector CharEyeLocation;
 	FRotator CharEyeRotation;
 
 	Owner->GetActorEyesViewPoint(CharEyeLocation, CharEyeRotation);
 
-	FVector TraceEnd = CharEyeLocation + (CharEyeRotation.Vector() * SightLength);
+	FVector TraceEnd = CharEyeLocation + (CharEyeRotation.Vector() * TraceDistance);
 
 	TArray<FHitResult> Hits;
 	FCollisionShape Shape;
-	Shape.SetSphere(ShapeSize);
+	Shape.SetSphere(TraceRadius);
 
 	bool bHit = GetWorld()->SweepMultiByObjectType(
 		Hits,
@@ -74,30 +65,81 @@ void UGRInteractionComponent::PrimaryInterract()
 
 	FColor LineColor = bHit ? FColor::Green : FColor::Red;
 
+	FocusedActor = nullptr;
+
 	for (FHitResult Hit : Hits)
 	{
 		if (bDrawDebug)
 		{
-			UKismetSystemLibrary::DrawDebugSphere(GetWorld(), Hit.ImpactPoint, ShapeSize, ShapeSegmentsNum, LineColor, Duration, Thickness);
+			UKismetSystemLibrary::DrawDebugSphere(GetWorld(), Hit.ImpactPoint, TraceRadius, ShapeSegmentsNum, LineColor, Duration, Thickness);
 		}
-		
+
 		AActor* HitActor = Hit.GetActor();
 
 		if (HitActor)
 		{
 			if (HitActor->Implements<UGRGameplayInterface>())
 			{
-				APawn* OwnerPawn = Cast<APawn>(Owner);
-
-				IGRGameplayInterface::Execute_Interact(HitActor, OwnerPawn);
+				FocusedActor = HitActor;
 				break;
 			}
 		}
+	}
+
+	if (FocusedActor)
+	{
+		if (DefaultWidgetInstance == nullptr && ensure(DefaultWidgetClass))
+		{
+			DefaultWidgetInstance = CreateWidget<UGRWorldUserWidget>(GetWorld(), DefaultWidgetClass);
+		}
+		
+		if (DefaultWidgetInstance)
+		{
+			DefaultWidgetInstance->AttachedActor = FocusedActor;
+			
+			if (!DefaultWidgetInstance->IsInViewport())
+			{
+				DefaultWidgetInstance->AddToViewport();
+			}
+		}
+	}
+	else
+	{
+		if (DefaultWidgetInstance)
+		{
+			DefaultWidgetInstance->RemoveFromParent();
+		}
+
 	}
 
 	if (bDrawDebug)
 	{
 		UKismetSystemLibrary::DrawDebugLine(GetWorld(), CharEyeLocation, TraceEnd, LineColor, Duration, Thickness);
 	}
+}
+
+void UGRInteractionComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	// Кастуем тут, а не в тике. Но в туторе было в тике. Держи это в уме.
+	MyPawn = Cast<APawn>(GetOwner());
+}
+
+void UGRInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (MyPawn)
+	{
+		if (MyPawn->IsLocallyControlled())
+		{
+			FindBestInteractable();
+		}
+	}
+}
+
+void UGRInteractionComponent::PrimaryInterract()
+{
+	ServerInteract(FocusedActor);
 }
 

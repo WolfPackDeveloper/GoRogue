@@ -7,6 +7,8 @@
 #include "GameplayTagContainer.h"
 #include "GRMagicProjectile.generated.h"
 
+class UGRActionEffect;
+
 UCLASS()
 class GOROGUE_API AGRMagicProjectile : public AGRProjectileBase
 {
@@ -27,6 +29,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
 	FGameplayTag ParryTag;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	TSubclassOf< UGRActionEffect> BurningActionClass;
 
 	UFUNCTION()
 	void OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

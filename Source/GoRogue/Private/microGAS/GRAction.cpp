@@ -58,7 +58,7 @@ void UGRAction::StopAction_Implementation(AActor* Instigator)
 
 UWorld* UGRAction::GetWorld() const
 {
-	// Outer si set when creating action via NewObject<T>
+	// Outer is set when creating action via NewObject<T>
 	UActorComponent* Comp = Cast<UActorComponent>(GetOuter());
 
 	if (Comp)

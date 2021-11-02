@@ -43,69 +43,6 @@ void AGRCharacterBase::PostInitializeComponents()
 	HealthComp->OnHealthChanged.AddDynamic(this, &AGRCharacterBase::OnHealthChanged);
 }
 
-//FVector AGRCharacterBase::GetAimLocation()
-//{
-//	FVector AimLocation = FVector::ZeroVector;
-//	
-//	const APlayerController* PlayerController = GetController<APlayerController>();
-//
-//	if (!ensure(PlayerController))
-//	{
-//		return AimLocation;
-//	}
-//
-//	FVector ViewLocation;
-//	FRotator ViewRotation;
-//
-//	PlayerController->GetPlayerViewPoint(ViewLocation, ViewRotation);
-//
-//	FVector TraceStart = ViewLocation;
-//	FVector ShotDirection = ViewRotation.Vector();
-//	FVector TraceEnd = TraceStart + ShotDirection * ShotDistance;
-//
-//	// "Калибровка" прицела в зависимости от наличия попадания трасировке пути снаряда.
-//	FCollisionQueryParams CollisionParams;
-//	CollisionParams.AddIgnoredActor(this);
-//
-//	FHitResult HitResult;
-//	bool bHit = GetWorld()->LineTraceSingleByChannel(
-//		HitResult,
-//		TraceStart,
-//		TraceEnd,
-//		ECC_Visibility,
-//		CollisionParams
-//	);
-//
-//	if (bHit)
-//	{
-//		AimLocation = HitResult.ImpactPoint;
-//	}
-//	else
-//	{
-//		AimLocation = TraceEnd;
-//	}
-//
-//	return AimLocation;
-//}
-
-//void AGRCharacterBase::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
-//{
-//	if (!ensureAlways(ClassToSpawn))
-//	{
-//		return;
-//	}
-//
-//	FVector SpawnLocation = GetMesh()->GetSocketLocation(HandSocketName);
-//	FVector AimLocation = GetAimLocation();
-//	FRotator SpawnRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, AimLocation);
-//	FTransform SpawnTM = FTransform(SpawnRotation, SpawnLocation);
-//
-//	FActorSpawnParameters SpawnParams;
-//	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-//	SpawnParams.Instigator = this;
-//	GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTM, SpawnParams);
-//}
-
 // Called when the game starts or when spawned
 void AGRCharacterBase::BeginPlay()
 {
@@ -148,48 +85,18 @@ void AGRCharacterBase::SprintStop()
 
 void AGRCharacterBase::PrimaryAttack()
 {
-//	StartAttackEffects();
-//
-//	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &AGRCharacterBase::PrimaryAttack_TimeElapsed, AttackAnimDelay);
-
 	ActionComp->StartActionByName(this, "PrimaryAttack");
 }
 
-//void AGRCharacterBase::PrimaryAttack_TimeElapsed()
-//{
-//	SpawnProjectile(ProjectileClass);
-//}
-
 void AGRCharacterBase::BlackHoleAttack()
 {
-	//StartAttackEffects();
-	//GetWorldTimerManager().SetTimer(TimerHandle_BlackholeAttack, this, &AGRCharacterBase::BlackholeAttack_TimeElapsed, AttackAnimDelay);
 	ActionComp->StartActionByName(this, "BlackHole");
 }
 
-//void AGRCharacterBase::BlackholeAttack_TimeElapsed()
-//{
-//	SpawnProjectile(BlackHoleProjectileClass);
-//}
-
 void AGRCharacterBase::Dash()
 {
-	//StartAttackEffects();
-	//GetWorldTimerManager().SetTimer(TimerHandle_Dash, this, &AGRCharacterBase::Dash_TimeElapsed, AttackAnimDelay);
 	ActionComp->StartActionByName(this, "Dash");
 }
-
-//void AGRCharacterBase::Dash_TimeElapsed()
-//{
-//	SpawnProjectile(DashProjectileClass);
-//}
-
-//void AGRCharacterBase::StartAttackEffects()
-//{
-//	PlayAnimMontage(AttackAnim);
-//	// Casting Effect Plaing
-//	UGameplayStatics::SpawnEmitterAttached(CastingEffect, GetMesh(), HandSocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
-//}
 
 FVector AGRCharacterBase::GetPawnViewLocation() const
 {
@@ -252,6 +159,5 @@ void AGRCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("SecondaryAttack", IE_Pressed, this, &AGRCharacterBase::BlackHoleAttack);
 	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &AGRCharacterBase::Dash);
 	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &AGRCharacterBase::PrimaryInterract);
-
 }
 

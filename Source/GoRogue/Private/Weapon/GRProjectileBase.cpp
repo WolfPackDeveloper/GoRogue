@@ -57,7 +57,5 @@ void AGRProjectileBase::Explode_Implementation()
 void AGRProjectileBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	//SphereComp->IgnoreActorWhenMoving(GetInstigator(), true);
-
 }
 

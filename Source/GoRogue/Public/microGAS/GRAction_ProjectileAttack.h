@@ -21,11 +21,6 @@ public:
 
 	UGRAction_ProjectileAttack();
 
-private:
-
-	// RangeAttack support function
-	FVector GetAimLocation(ACharacter* InstigatorCharacter);
-
 protected:
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
@@ -39,6 +34,9 @@ protected:
 
 	UPROPERTY(Editanywhere, Category = "Attack")
 	float AttackDistance = 3000.f;
+
+	UPROPERTY(Editanywhere, Category = "Attack")
+	float TraceShapeRadius = 20.f;
 
 	/* Particle System played during attack animation */
 	UPROPERTY(EditAnywhere, Category = "Attack")

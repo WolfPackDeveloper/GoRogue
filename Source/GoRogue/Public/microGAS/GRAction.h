@@ -38,7 +38,11 @@ public:
 	/* Action nickname to start/stop without a reference to the object */
 	UPROPERTY(EditDefaultsOnly, Category = "Action")
 	FName ActionName;
-	
+
+	/* Start immediatly when added to action component */
+	UPROPERTY(EditDefaultsOnly, Category = "Action")
+	bool bAutoStart;
+
 	UFUNCTION(BlueprintCallable, Category = "Actions")
 	bool IsRunning() const;
 

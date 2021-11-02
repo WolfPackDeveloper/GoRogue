@@ -5,6 +5,7 @@
 #include "Components/GRAttributeComponent.h"
 #include "Core/GRGameplayFunctionLibrary.h"
 #include "microGAS/GRActionComponent.h"
+#include "microGAS/GRActionEffect.h"
 
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -37,6 +38,11 @@ void AGRMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent
 	if (UGRGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
 	{
 		Explode();
+
+		if (ActionComp)
+		{
+			ActionComp->AddAction(GetInstigator(), BurningActionClass);
+		}
 	}
 	
 }

@@ -24,9 +24,6 @@ AGRCharacterAI::AGRCharacterAI()
     PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComp"));
 
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-
-    //GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
-    //GetMesh()->SetGenerateOverlapEvents(true);
 }
 
 void AGRCharacterAI::PostInitializeComponents()

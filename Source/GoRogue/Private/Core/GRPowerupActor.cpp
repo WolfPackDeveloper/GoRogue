@@ -21,6 +21,7 @@ AGRPowerupActor::AGRPowerupActor()
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	MeshComp->SetupAttachment(RootComponent);
 
+	SetReplicates(true);
 }
 
 void AGRPowerupActor::ShowPowerup()

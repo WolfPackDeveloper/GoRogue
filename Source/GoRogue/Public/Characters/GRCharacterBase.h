@@ -26,13 +26,6 @@ public:
 
 	virtual void PostInitializeComponents() override;
 
-private:
-
-	//// RangeAttack support function
-	//FVector GetAimLocation();
-
-//	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
-
 protected:
 	
 	// === Components ===

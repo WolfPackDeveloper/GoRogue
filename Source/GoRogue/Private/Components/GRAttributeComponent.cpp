@@ -4,12 +4,21 @@
 #include "Components/GRAttributeComponent.h"
 #include "Core/GRGameModeBase.h"
 
+#include "Net/UnrealNetwork.h"
+
 static TAutoConsoleVariable<float> CVarDamageMultiplier(TEXT("su.DamageMultiplier"), 1.f, TEXT("Global Damage Modifier for Attribute Component."), ECVF_Cheat);
 
 // Sets default values for this component's properties
 UGRAttributeComponent::UGRAttributeComponent()
 {
 	Health = HealthMax;
+
+	SetIsReplicatedByDefault(true);
+}
+
+void UGRAttributeComponent::MulticastHealthChanged_Implementation(AActor* InstigatorActor, float NewHealth, float Delta)
+{
+	OnHealthChanged.Broadcast(InstigatorActor, this, NewHealth, Delta);
 }
 
 UGRAttributeComponent* UGRAttributeComponent::GetAttributes(AActor* FromActor)
@@ -80,7 +89,12 @@ bool UGRAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Del
 
 	float ActualDelta = Health - OldHealth;
 
-	OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
+	//OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
+
+	if (ActualDelta != 0.f)
+	{
+		MulticastHealthChanged(InstigatorActor, Health, ActualDelta);
+	}
 
 	// Died
 	if (ActualDelta < 0.f && Health == 0.f)
@@ -93,4 +107,14 @@ bool UGRAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Del
 	}
 
 	return ActualDelta != 0.f;
+}
+
+void UGRAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UGRAttributeComponent, Health);
+	DOREPLIFETIME(UGRAttributeComponent, HealthMax);
+
+	//DOREPLIFETIME_CONDITION(UGRAttributeComponent, HealthMax, COND_OwnerOnly);
 }

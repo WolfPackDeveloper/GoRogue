@@ -28,7 +28,7 @@ AGRCharacterBase::AGRCharacterBase()
 	Camera->SetupAttachment(SpringArm);
 
 	ActionComp = CreateDefaultSubobject<UGRActionComponent>(TEXT("ActionComp"));
-	HealthComp = CreateDefaultSubobject<UGRAttributeComponent>(TEXT("HealthComp"));
+	AttributeComp = CreateDefaultSubobject<UGRAttributeComponent>(TEXT("HealthComp"));
 	InteractionComp = CreateDefaultSubobject<UGRInteractionComponent>(TEXT("InteractionComp"));
 
 	bUseControllerRotationYaw = false;
@@ -40,7 +40,7 @@ void AGRCharacterBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	HealthComp->OnHealthChanged.AddDynamic(this, &AGRCharacterBase::OnHealthChanged);
+	AttributeComp->OnHealthChanged.AddDynamic(this, &AGRCharacterBase::OnHealthChanged);
 }
 
 // Called when the game starts or when spawned
@@ -48,8 +48,8 @@ void AGRCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Update UI Helthbar Value
-	HealthComp->ApplyHealthChange(this, 0.f);
+	// Update UI Healthbar Value
+	AttributeComp->ApplyHealthChange(this, 0.f);
 	
 }
 
@@ -130,7 +130,7 @@ void AGRCharacterBase::OnHealthChanged(AActor* InstigatorActor, UGRAttributeComp
 
 void AGRCharacterBase::HealSelf(float Amount)
 {
-	HealthComp->ApplyHealthChange(this, Amount /* = 100.f*/);
+	AttributeComp->ApplyHealthChange(this, Amount /* = 100.f*/);
 }
 
 // Called every frame

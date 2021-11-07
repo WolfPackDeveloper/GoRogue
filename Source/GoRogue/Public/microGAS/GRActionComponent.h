@@ -28,6 +28,10 @@ protected:
 	UPROPERTY()
 	TArray<UGRAction*> Actions;
 	
+	UFUNCTION(Server, Reliable)
+	void ServerStartAction(AActor* Instigator, FName ActionName);
+	virtual void ServerStartAction_Implementation(AActor* Instigator, FName ActionName);
+
 	// Called when the game starts
 	virtual void BeginPlay() override;
 

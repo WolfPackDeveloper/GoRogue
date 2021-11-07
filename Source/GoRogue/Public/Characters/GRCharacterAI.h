@@ -30,7 +30,7 @@ protected:
 	UGRWorldUserWidget* ActiveHealthBar = nullptr;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
-	UGRAttributeComponent* HealthComp = nullptr;
+	UGRAttributeComponent* AttributeComp = nullptr;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UPawnSensingComponent* PawnSensingComp = nullptr;

@@ -26,8 +26,8 @@ public class GoRogue : ModuleRules
 		});
 
         // Configuration for faster build small projects:
-        MinFilesUsingPrecompiledHeaderOverride = 1;
-		bUseUnity = false; // גלוסעמ bFasterWithoutUnity = true;
+        //MinFilesUsingPrecompiledHeaderOverride = 1;
+		//bUseUnity = false; // גלוסעמ bFasterWithoutUnity = true;
 
         // Uncomment if you are using Slate UI
         // PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

@@ -7,13 +7,16 @@
 // Sets default values for this component's properties
 UGRActionComponent::UGRActionComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
+	SetIsReplicatedByDefault(true);
 }
 
+
+void UGRActionComponent::ServerStartAction_Implementation(AActor* Instigator, FName ActionName)
+{
+	StartActionByName(Instigator, ActionName);
+}
 
 // Called when the game starts
 void UGRActionComponent::BeginPlay()
@@ -80,6 +83,12 @@ bool UGRActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
 				GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, FailedMsg);
 				
 				continue;
+			}
+			
+			// If is Client. Then call function on server too.
+			if (!GetOwner()->HasAuthority())
+			{
+				ServerStartAction(Instigator, ActionName);
 			}
 			
 			Action->StartAction(Instigator);

@@ -19,7 +19,7 @@ AGRCharacterAI::AGRCharacterAI()
 {
     ActionComp = CreateDefaultSubobject<UGRActionComponent>(TEXT("ActionComp"));
     
-    HealthComp = CreateDefaultSubobject<UGRAttributeComponent>(TEXT("HealthComp"));
+    AttributeComp = CreateDefaultSubobject<UGRAttributeComponent>(TEXT("HealthComp"));
 
     PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComp"));
 
@@ -31,7 +31,7 @@ void AGRCharacterAI::PostInitializeComponents()
     Super::PostInitializeComponents();
     
     PawnSensingComp->OnSeePawn.AddDynamic(this, &AGRCharacterAI::OnPawnSeen);
-    HealthComp->OnHealthChanged.AddDynamic(this, &AGRCharacterAI::OnHealthChanged);
+    AttributeComp->OnHealthChanged.AddDynamic(this, &AGRCharacterAI::OnHealthChanged);
 }
 
 void AGRCharacterAI::SetTargetActor(AActor* NewTarget)

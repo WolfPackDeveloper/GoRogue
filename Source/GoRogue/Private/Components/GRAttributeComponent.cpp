@@ -12,6 +12,8 @@ static TAutoConsoleVariable<float> CVarDamageMultiplier(TEXT("su.DamageMultiplie
 UGRAttributeComponent::UGRAttributeComponent()
 {
 	Health = HealthMax;
+	Rage = 0.f;
+	RageMax = 100.f;
 
 	SetIsReplicatedByDefault(true);
 }
@@ -89,8 +91,6 @@ bool UGRAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Del
 
 	float ActualDelta = Health - OldHealth;
 
-	//OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
-
 	if (ActualDelta != 0.f)
 	{
 		MulticastHealthChanged(InstigatorActor, Health, ActualDelta);
@@ -109,12 +109,30 @@ bool UGRAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Del
 	return ActualDelta != 0.f;
 }
 
+float UGRAttributeComponent::GetRage() const
+{
+	return Rage;
+}
+
+bool UGRAttributeComponent::ApplyRage(AActor* InstigatorActor, float Delta)
+{
+	float OldRage = Rage;
+
+	Rage = FMath::Clamp(Rage + Delta, 0.0f, RageMax);
+
+	float ActualDelta = Rage - OldRage;
+	if (ActualDelta != 0.0f)
+	{
+		OnRageChanged.Broadcast(InstigatorActor, this, Rage, ActualDelta);
+	}
+
+	return ActualDelta != 0;
+}
+
 void UGRAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UGRAttributeComponent, Health);
 	DOREPLIFETIME(UGRAttributeComponent, HealthMax);
-
-	//DOREPLIFETIME_CONDITION(UGRAttributeComponent, HealthMax, COND_OwnerOnly);
 }

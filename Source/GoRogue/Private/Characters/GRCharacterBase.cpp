@@ -49,7 +49,7 @@ void AGRCharacterBase::BeginPlay()
 	Super::BeginPlay();
 
 	// Update UI Healthbar Value
-	AttributeComp->ApplyHealthChange(this, 0.f);
+	//AttributeComp->ApplyHealthChange(this, 0.f);
 	
 }
 
@@ -117,6 +117,10 @@ void AGRCharacterBase::OnHealthChanged(AActor* InstigatorActor, UGRAttributeComp
 	if (Delta < 0.0f)
 	{
 		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
+
+		// Rage added equal to damage received (Abs to turn into positive rage number)
+		float RageDelta = FMath::Abs(Delta);
+		AttributeComp->ApplyRage(InstigatorActor, RageDelta);
 	}
 	// Время умирать.
 	if (NewHealth <= 0.f && Delta < 0.f)
@@ -125,7 +129,6 @@ void AGRCharacterBase::OnHealthChanged(AActor* InstigatorActor, UGRAttributeComp
 		
 		DisableInput(PlayerController);
 	}
-
 }
 
 void AGRCharacterBase::HealSelf(float Amount)
@@ -137,7 +140,6 @@ void AGRCharacterBase::HealSelf(float Amount)
 void AGRCharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input

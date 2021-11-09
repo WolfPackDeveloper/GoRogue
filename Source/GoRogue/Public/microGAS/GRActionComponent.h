@@ -46,6 +46,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Actions")
 	void AddAction(AActor* Instigator, TSubclassOf<UGRAction> ActionClass);
 
+	/* Returns first occurance of action matching the class provided */
+	UFUNCTION(BlueprintCallable, Category = "Actions")
+	UGRAction* GetAction(TSubclassOf<UGRAction> ActionClass) const;
+
 	UFUNCTION(BlueprintCallable, Category = "Actions")
 	void RemoveAction(UGRAction* ActionToRemove);
 

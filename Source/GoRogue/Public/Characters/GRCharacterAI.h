@@ -26,6 +26,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UGRWorldUserWidget> HealthBarWidgetClass;
 
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UGRWorldUserWidget> SpottedWidgetClass;
+
 	UPROPERTY()
 	UGRWorldUserWidget* ActiveHealthBar = nullptr;
 
@@ -39,12 +42,21 @@ protected:
 	UGRActionComponent* ActionComp = nullptr;
 
 	/* VisibleAnywhere = read-only, still useful to view in-editor and enforce a convention. */
+	/* Material parameter for Hitflashes */
 	UPROPERTY(VisibleAnywhere, Category = "Effects")
 	FName TimeToHitParamName = "TimeToHit";
 
+	/* Key for AI Blackboard 'TargetActor' */
+	UPROPERTY(VisibleAnywhere, Category = "Effects")
+	FName TargetActorKey = "TargetActor";
+
 	virtual void PostInitializeComponents() override;
 
+	UFUNCTION(BlueprintCallable, Category = "AI")
 	void SetTargetActor(AActor* NewTarget);
+
+	UFUNCTION(BlueprintCallable, Category = "AI")
+	AActor* GetTargetActor() const;
 
 	UFUNCTION()
 	void OnPawnSeen(APawn* Pawn);

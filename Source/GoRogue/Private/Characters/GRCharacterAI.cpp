@@ -23,7 +23,17 @@ AGRCharacterAI::AGRCharacterAI()
 
     PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComp"));
 
+    // Ensures we receive a controlled when spawned in the level by our gamemode
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+	// Disabled on capsule to let projectiles pass through capsule and hit mesh instead
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
+	// Enabled on mesh to react to incoming projectiles
+	GetMesh()->SetGenerateOverlapEvents(true);
+
+    // Set in .h file
+	//TimeToHitParamName = "TimeToHit";
+	//TargetActorKey = "TargetActor";
 }
 
 void AGRCharacterAI::PostInitializeComponents()
@@ -36,22 +46,42 @@ void AGRCharacterAI::PostInitializeComponents()
 
 void AGRCharacterAI::SetTargetActor(AActor* NewTarget)
 {
-    FName ValueKeyName = "TargetActor";
-
     AAIController* AIC = Cast<AAIController>(GetController());
 
     if (AIC)
     {
-        AIC->GetBlackboardComponent()->SetValueAsObject(ValueKeyName, NewTarget);
+        AIC->GetBlackboardComponent()->SetValueAsObject(TargetActorKey, NewTarget);
     }
+}
+
+AActor* AGRCharacterAI::GetTargetActor() const
+{
+	AAIController* AIC = Cast<AAIController>(GetController());
+	if (AIC)
+	{
+		return Cast<AActor>(AIC->GetBlackboardComponent()->GetValueAsObject(TargetActorKey));
+	}
+
+	return nullptr;
 }
 
 void AGRCharacterAI::OnPawnSeen(APawn* Pawn)
 {
- 
-    SetTargetActor(Pawn);
+ 	// Ignore if target already set
+	if (GetTargetActor() != Pawn)
+	{
+		SetTargetActor(Pawn);
 
-    //DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, 4.f, true);
+		UGRWorldUserWidget* NewWidget = CreateWidget<UGRWorldUserWidget>(GetWorld(), SpottedWidgetClass);
+		if (NewWidget)
+		{
+			NewWidget->AttachedActor = this;
+			// Index of 10 (or anything higher than default of 0) places this on top of any other widget.
+			// May end up behind the minion health bar otherwise.
+			NewWidget->AddToViewport(10);
+		}
+	}
+	//DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, 0.5f, true);
 }
 
 void AGRCharacterAI::OnHealthChanged(AActor* InstigatorActor, UGRAttributeComponent* OwningComp, float NewHealth, float Delta)

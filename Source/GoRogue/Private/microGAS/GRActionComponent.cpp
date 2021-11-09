@@ -3,6 +3,7 @@
 
 #include "microGAS/GRActionComponent.h"
 #include "microGAS/GRAction.h"
+#include "../GoRogue.h"
 
 // Sets default values for this component's properties
 UGRActionComponent::UGRActionComponent()
@@ -36,8 +37,22 @@ void UGRActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// Debug
-	FString DebugMessage = GetNameSafe(GetOwner()) + " : " + ActiveGameplayTags.ToStringSimple();
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow, DebugMessage);
+	//FString DebugMessage = GetNameSafe(GetOwner()) + " : " + ActiveGameplayTags.ToStringSimple();
+	//GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow, DebugMessage);
+
+	// Draw All Actions
+	for (UGRAction* Action : Actions)
+	{
+		FColor TextColor = Action->IsRunning() ? FColor::Blue : FColor::White;
+		
+		FString ActionMsg = FString::Printf(TEXT("[%s] Action: %s : IsRunning: %s : Outer: %s"),
+			*GetNameSafe(GetOwner()),
+			*Action->ActionName.ToString(),
+			Action->IsRunning() ? TEXT("true") : TEXT("false"),
+			*GetNameSafe(GetOuter()));
+
+		LogOnScreen(this, ActionMsg, TextColor, 0.0f);
+	}
 }
 
 void UGRActionComponent::AddAction(AActor* Instigator, TSubclassOf<UGRAction> ActionClass)
@@ -58,6 +73,19 @@ void UGRActionComponent::AddAction(AActor* Instigator, TSubclassOf<UGRAction> Ac
 			NewAction->StartAction(Instigator);
 		}
 	}
+}
+
+UGRAction* UGRActionComponent::GetAction(TSubclassOf<UGRAction> ActionClass) const
+{
+	for (UGRAction* Action : Actions)
+	{
+		if (Action && Action->IsA(ActionClass))
+		{
+			return Action;
+		}
+	}
+
+	return nullptr;
 }
 
 void UGRActionComponent::RemoveAction(UGRAction* ActionToRemove)

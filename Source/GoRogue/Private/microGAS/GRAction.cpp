@@ -3,19 +3,36 @@
 
 #include "microGAS/GRAction.h"
 #include "microGAS/GRActionComponent.h"
+#include "../GoRogue.h"
 
-
+#include "Net/UnrealNetwork.h"
 
 UGRActionComponent* UGRAction::GetOwningComponent() const
 {
-	return Cast<UGRActionComponent>(GetOuter());
+	return ActionComp;
+}
+
+void UGRAction::OnRep_RepData()
+{
+	if (RepData.bIsRunning)
+	{
+		StartAction(RepData.Instigator);
+	}
+	else
+	{
+		StopAction(RepData.Instigator);
+	}
+}
+
+void UGRAction::Initialize(UGRActionComponent* NewActionComp)
+{
+	ActionComp = NewActionComp;
 }
 
 bool UGRAction::IsRunning() const
 {
-	return bIsRunning;
+	return RepData.bIsRunning;
 }
-
 
 bool UGRAction::CanStart_Implementation(AActor* Instigator)
 {
@@ -37,34 +54,52 @@ bool UGRAction::CanStart_Implementation(AActor* Instigator)
 void UGRAction::StartAction_Implementation(AActor* Instigator)
 {
 	UE_LOG(LogTemp, Log, TEXT("Running: %s"), *GetNameSafe(this));
+	//LogOnScreen(this, FString::Printf(TEXT("Started: %s"), *ActionName.ToString()), FColor::Green);
 
 	UGRActionComponent* Comp = GetOwningComponent();
 	Comp->ActiveGameplayTags.AppendTags(GrantsTags);
 
-	bIsRunning = true;
+	RepData.bIsRunning = true;
+	RepData.Instigator = Instigator;
 }
 
 void UGRAction::StopAction_Implementation(AActor* Instigator)
 {
 	UE_LOG(LogTemp, Log, TEXT("Stopped: %s"), *GetNameSafe(this));
+	//LogOnScreen(this, FString::Printf(TEXT("Stopped: %s"), *ActionName.ToString()), FColor::Orange);
 
-	ensureAlways(bIsRunning);
+	// bIsRunning Check only on server
+	//ensureAlways(bIsRunning);
 
 	UGRActionComponent* Comp = GetOwningComponent();
 	Comp->ActiveGameplayTags.RemoveTags(GrantsTags);
 
-	bIsRunning = false;
+	RepData.bIsRunning = false;
+	RepData.Instigator = Instigator;
 }
 
 UWorld* UGRAction::GetWorld() const
 {
 	// Outer is set when creating action via NewObject<T>
-	UActorComponent* Comp = Cast<UActorComponent>(GetOuter());
+	AActor* Actor = Cast<AActor>(GetOuter());
 
-	if (Comp)
+	if (Actor)
 	{
-		return Comp->GetWorld();
+		return Actor->GetWorld();
 	}
 
 	return nullptr;
+}
+
+bool UGRAction::IsSupportedForNetworking() const
+{
+	return true;
+}
+
+void UGRAction::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty> & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UGRAction, RepData);
+	DOREPLIFETIME(UGRAction, ActionComp);
 }

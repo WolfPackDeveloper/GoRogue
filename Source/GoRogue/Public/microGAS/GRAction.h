@@ -10,6 +10,21 @@
 class UGRActionComponent;
 class UWorld;
 
+USTRUCT()
+struct FActionRepData
+{
+	GENERATED_BODY()
+
+public:
+	
+	UPROPERTY()
+	bool bIsRunning;
+
+	UPROPERTY()
+	AActor* Instigator;
+
+};
+
 /**
  * 
  */
@@ -20,8 +35,6 @@ class GOROGUE_API UGRAction : public UObject
 
 protected:
 
-	bool bIsRunning = false;
-
 	/* Tags added to owning actor when activated, and removed, when action stops. */
 	UPROPERTY(EditDefaultsOnly, Category = "Tags")
 	FGameplayTagContainer GrantsTags;
@@ -30,8 +43,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Tags")
 	FGameplayTagContainer BlockedTags;
 
+	UPROPERTY(Replicated)
+	UGRActionComponent* ActionComp;
+
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	UGRActionComponent* GetOwningComponent() const;
+
+	UPROPERTY(ReplicatedUsing = "OnRep_RepData")
+	FActionRepData RepData;
+
+	UFUNCTION()
+	void OnRep_RepData();
 
 public:
 
@@ -42,6 +64,8 @@ public:
 	/* Start immediatly when added to action component */
 	UPROPERTY(EditDefaultsOnly, Category = "Action")
 	bool bAutoStart;
+
+	void Initialize(UGRActionComponent* NewActionComp);
 
 	UFUNCTION(BlueprintCallable, Category = "Actions")
 	bool IsRunning() const;
@@ -59,4 +83,9 @@ public:
 	virtual void StopAction_Implementation(AActor* Instigator);
 
 	UWorld* GetWorld() const override;
+
+	/** IsSupportedForNetworking means an object can be referenced over the network */
+	virtual bool IsSupportedForNetworking() const override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty> & OutLifetimeProps) const override;
 };

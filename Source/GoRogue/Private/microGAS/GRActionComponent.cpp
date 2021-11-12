@@ -5,6 +5,9 @@
 #include "microGAS/GRAction.h"
 #include "../GoRogue.h"
 
+#include "Net/UnrealNetwork.h"
+#include "Engine/ActorChannel.h"
+
 // Sets default values for this component's properties
 UGRActionComponent::UGRActionComponent()
 {
@@ -24,9 +27,13 @@ void UGRActionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	for (auto ActionClass : DefaultActions)
+	// Server only
+	if (GetOwner()->HasAuthority())
 	{
-		AddAction(GetOwner(), ActionClass);
+		for (auto ActionClass : DefaultActions)
+		{
+			AddAction(GetOwner(), ActionClass);
+		}
 	}
 }
 
@@ -43,13 +50,9 @@ void UGRActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	// Draw All Actions
 	for (UGRAction* Action : Actions)
 	{
-		FColor TextColor = Action->IsRunning() ? FColor::Blue : FColor::White;
+		FColor TextColor = Action->IsRunning() ? FColor::Yellow : FColor::White;
 		
-		FString ActionMsg = FString::Printf(TEXT("[%s] Action: %s : IsRunning: %s : Outer: %s"),
-			*GetNameSafe(GetOwner()),
-			*Action->ActionName.ToString(),
-			Action->IsRunning() ? TEXT("true") : TEXT("false"),
-			*GetNameSafe(GetOuter()));
+		FString ActionMsg = FString::Printf(TEXT("[%s] Action: %s"), *GetNameSafe(GetOwner()), *GetNameSafe(Action));
 
 		LogOnScreen(this, ActionMsg, TextColor, 0.0f);
 	}
@@ -62,10 +65,12 @@ void UGRActionComponent::AddAction(AActor* Instigator, TSubclassOf<UGRAction> Ac
 		return;
 	}
 
-	UGRAction* NewAction = NewObject<UGRAction>(this, ActionClass);
+	UGRAction* NewAction = NewObject<UGRAction>(GetOwner(), ActionClass);
 
 	if (ensure(NewAction))
 	{
+		NewAction->Initialize(this);
+		
 		Actions.Add(NewAction);
 
 		if (NewAction->bAutoStart && ensure(NewAction->CanStart(Instigator)))
@@ -142,5 +147,26 @@ bool UGRActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 	}
 
 	return false;
+}
+
+bool UGRActionComponent::ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags)
+{
+	bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+	for (UGRAction* Action : Actions)
+	{
+		if (Action)
+		{
+			WroteSomething |= Channel->ReplicateSubobject(Action, *Bunch, *RepFlags);
+		}
+	}
+
+	return WroteSomething;
+}
+
+void UGRActionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UGRActionComponent, Actions);
 }
 

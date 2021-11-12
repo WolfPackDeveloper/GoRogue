@@ -25,7 +25,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Actions")
 	TArray<TSubclassOf<UGRAction>> DefaultActions;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TArray<UGRAction*> Actions;
 	
 	UFUNCTION(Server, Reliable)
@@ -59,5 +59,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Actions")
 	bool StopActionByName(AActor* Instigator, FName ActionName);
 
+	/** Allows a component to replicate other subobject on the actor  */
+	virtual bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

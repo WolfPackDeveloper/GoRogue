@@ -86,23 +86,27 @@ bool UGRAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Del
 	}
 
 	float OldHealth = Health;
+	float NewHealth = FMath::Clamp(Health + Delta, 0.f, HealthMax);
+	float ActualDelta = NewHealth - OldHealth;
 
-	Health = FMath::Clamp(Health + Delta, 0.f, HealthMax);
-
-	float ActualDelta = Health - OldHealth;
-
-	if (ActualDelta != 0.f)
+	// Is Server?
+	if (GetOwner()->HasAuthority())
 	{
-		MulticastHealthChanged(InstigatorActor, Health, ActualDelta);
-	}
+		Health = NewHealth;
 
-	// Died
-	if (ActualDelta < 0.f && Health == 0.f)
-	{
-		AGRGameModeBase* GM = Cast<AGRGameModeBase>(GetWorld()->GetAuthGameMode());
-		if (GM)
+		if (ActualDelta != 0.f)
 		{
-			GM->OnActorKilled(GetOwner(), InstigatorActor);
+			MulticastHealthChanged(InstigatorActor, Health, ActualDelta);
+		}
+
+		// Died
+		if (ActualDelta < 0.f && Health == 0.f)
+		{
+			AGRGameModeBase* GM = Cast<AGRGameModeBase>(GetWorld()->GetAuthGameMode());
+			if (GM)
+			{
+				GM->OnActorKilled(GetOwner(), InstigatorActor);
+			}
 		}
 	}
 

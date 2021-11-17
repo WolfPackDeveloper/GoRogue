@@ -7,6 +7,8 @@
 #include "EnvironmentQuery/EnvQueryTypes.h"
 #include "GRGameModeBase.generated.h"
 
+class UGRSaveGame;
+
 class UCurveFloat;
 class UEnvQuery;
 class UEnvQueryInstanceBlueprintWrapper;
@@ -25,6 +27,11 @@ public:
 
 protected:
 	
+	FString SlotName = "SaveGame01";
+
+	UPROPERTY()
+	UGRSaveGame* CurrentSaveGame;
+
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	TSubclassOf<AActor> MinionClass;
 
@@ -74,10 +81,19 @@ protected:
 
 public:
 
+	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
+
 	virtual void StartPlay() override;
+
+	virtual void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
 
 	virtual void OnActorKilled(AActor* VictimActor, AActor* Killer);
 
 	UFUNCTION(Exec)
 	void KillAll();
+
+	UFUNCTION(BlueprintCallable, Category = "SaveGame")
+	void WriteSaveGame();
+
+	void LoadSaveGame();
 };

@@ -8,6 +8,8 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnCreditsChanged, AGRPlayerState*, PlayerState, int32, NewCredits, int32, Delta);
 
+class UGRSaveGame;
+
 /**
  * 
  */
@@ -30,11 +32,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Credits")
 	int32 GetCredits(int32 Delta) const	;
 
-
 	UFUNCTION(BlueprintCallable, Category = "Credits")
 	void AddCredits(int32 Delta);
 
 	UFUNCTION(BlueprintCallable, Category = "Credits")
 	bool RemoveCredits(int32 Delta);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void SavePlayerState(UGRSaveGame* SaveObject);
+	virtual void SavePlayerState_Implementation(UGRSaveGame* SaveObject);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void LoadPlayerState(UGRSaveGame* SaveObject);
+	virtual void LoadPlayerState_Implementation(UGRSaveGame* SaveObject);
 
 };

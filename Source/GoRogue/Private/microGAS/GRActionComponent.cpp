@@ -22,6 +22,11 @@ void UGRActionComponent::ServerStartAction_Implementation(AActor* Instigator, FN
 	StartActionByName(Instigator, ActionName);
 }
 
+void UGRActionComponent::ServerStopAction_Implementation(AActor* Instigator, FName ActionName)
+{
+	StopActionByName(Instigator, ActionName);
+}
+
 // Called when the game starts
 void UGRActionComponent::BeginPlay()
 {
@@ -62,6 +67,13 @@ void UGRActionComponent::AddAction(AActor* Instigator, TSubclassOf<UGRAction> Ac
 {
 	if (!ensure(ActionClass))
 	{
+		return;
+	}
+
+	// Skip for clients
+	if (!GetOwner()->HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Client attempting ro AddAction. [Class: %s]"), *GetNameSafe(ActionClass));
 		return;
 	}
 
@@ -140,6 +152,12 @@ bool UGRActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 		{
 			if (Action->IsRunning())
 			{
+				// If is Client. Then call function on server too.
+				if (!GetOwner()->HasAuthority())
+				{
+					ServerStopAction(Instigator, ActionName);
+				}
+				
 				Action->StopAction(Instigator);
 				return true;
 			}

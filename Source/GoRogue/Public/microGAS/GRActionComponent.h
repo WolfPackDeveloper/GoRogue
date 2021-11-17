@@ -32,6 +32,10 @@ protected:
 	void ServerStartAction(AActor* Instigator, FName ActionName);
 	virtual void ServerStartAction_Implementation(AActor* Instigator, FName ActionName);
 
+	UFUNCTION(Server, Reliable)
+	void ServerStopAction(AActor* Instigator, FName ActionName);
+	virtual void ServerStopAction_Implementation(AActor* Instigator, FName ActionName);
+
 	// Called when the game starts
 	virtual void BeginPlay() override;
 

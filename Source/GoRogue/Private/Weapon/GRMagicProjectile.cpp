@@ -19,31 +19,29 @@ AGRMagicProjectile::AGRMagicProjectile()
 
 void AGRMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {	
-	if (!OtherActor || OtherActor == GetInstigator())
+	if (OtherActor && OtherActor != GetInstigator())
 	{
-		return;
-	}
+		UGRActionComponent* ActionComp = Cast<UGRActionComponent>(OtherActor->GetComponentByClass(UGRActionComponent::StaticClass()));
 
-	UGRActionComponent* ActionComp = Cast<UGRActionComponent>(OtherActor->GetComponentByClass(UGRActionComponent::StaticClass()));
-
-	if (ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag))
-	{
-		MoveComp->Velocity = -MoveComp->Velocity;
-
-		// при парировании меняем "владельца" снаряда, чтобы он мог нанести урон тому, кто его выпустил.
-		SetInstigator(Cast<APawn>(OtherActor));
-		return;
-	}
-
-	if (UGRGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
-	{
-		Explode();
-
-		if (ActionComp)
+		if (ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag))
 		{
-			ActionComp->AddAction(GetInstigator(), BurningActionClass);
+			MoveComp->Velocity = -MoveComp->Velocity;
+
+			// при парировании меняем "владельца" снаряда, чтобы он мог нанести урон тому, кто его выпустил.
+			SetInstigator(Cast<APawn>(OtherActor));
+			return;
+		}
+
+		// Apply Damage & Impulse
+		if (UGRGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
+		{
+			Explode();
+
+			if (ActionComp && HasAuthority())
+			{
+				ActionComp->AddAction(GetInstigator(), BurningActionClass);
+			}
 		}
 	}
-	
 }
 

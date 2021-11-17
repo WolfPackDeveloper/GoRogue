@@ -6,16 +6,27 @@
 #include "Characters/GRCharacterAI.h"
 #include "Characters/GRCharacterBase.h"
 #include "Components/GRAttributeComponent.h"
+#include "Core/GRSaveGame.h"
 
 #include "EnvironmentQuery/EnvQueryInstanceBlueprintWrapper.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "EngineUtils.h"
+#include "GameFramework/GameStateBase.h"
+#include "Kismet/GameplayStatics.h" //Save Game
 
 static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("su.SpawnBots"), true, TEXT("Enable spawning of bots via timer."), ECVF_Cheat);
 
 AGRGameModeBase::AGRGameModeBase()
 {
 	PlayerStateClass = AGRPlayerState::StaticClass();
+	SlotName = "SaveGame01";
+}
+
+void AGRGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
+{
+	Super::InitGame(MapName, Options, ErrorMessage);
+
+	LoadSaveGame();
 }
 
 void AGRGameModeBase::SpawnBotTimerElapsed()
@@ -166,6 +177,19 @@ void AGRGameModeBase::StartPlay()
 	}
 }
 
+void AGRGameModeBase::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
+{
+	// Странно... А зачем _Implementation?
+	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
+
+	AGRPlayerState* PS = NewPlayer->GetPlayerState<AGRPlayerState>();
+
+	if (PS)
+	{
+		PS->LoadPlayerState(CurrentSaveGame);
+	}
+}
+
 void AGRGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
 {
 	UE_LOG(LogTemp, Log, TEXT("OnActorKilled: Victim: %s, Killer: %s"), *GetNameSafe(VictimActor), *GetNameSafe(Killer));
@@ -209,5 +233,70 @@ void AGRGameModeBase::KillAll()
 		{
 			HealthComp->Kill(this); // Pass in player for kill credit.
 		}
+	}
+}
+
+void AGRGameModeBase::WriteSaveGame()
+{
+	// Debug
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Saving game..."));
+	
+	// Iterate all PlayerStates, we don`t have proper ID to match yet (required Steam or EOS)
+	for (int32 i = 0; i < GameState->PlayerArray.Num(); i++)
+	{
+		AGRPlayerState* PS = Cast<AGRPlayerState>(GameState->PlayerArray[i]);
+
+		if (PS)
+		{
+			PS->SavePlayerState(CurrentSaveGame);
+			break; // Single player only at this point.
+		}
+	}
+
+	// Iterate the entire world of actors
+
+	for (FActorIterator It(GetWorld()); It; ++It)
+	{
+		AActor* Actor = *It;
+		// Only interested in our "Gameplay Actors"
+		if (!Actor->Implements<UGRGameplayInterface>())
+		{
+			continue;
+		}
+	}
+
+	// Call SaveGameToSlot to serialize and save our SaveGameObject with name: <SaveGameSlotName>.sav
+	const bool bIsSaved = UGameplayStatics::SaveGameToSlot(CurrentSaveGame, SlotName, 0);
+
+	// Debug
+	//if (bIsSaved)
+	//{
+	//	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Game Saved"));
+	//}
+	//else
+	//{
+	//	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Game did not save..."));
+	//}
+}
+
+void AGRGameModeBase::LoadSaveGame()
+{
+	if (UGameplayStatics::DoesSaveGameExist(SlotName, 0))
+	{
+		CurrentSaveGame = Cast<UGRSaveGame>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
+
+		if (CurrentSaveGame == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Failed to load SaveGame Data."));
+			return;
+		}
+
+		UE_LOG(LogTemp, Warning, TEXT("Loaded SaveGame Data."));
+	}
+	else
+	{
+		CurrentSaveGame = Cast<UGRSaveGame>(UGameplayStatics::CreateSaveGameObject(UGRSaveGame::StaticClass()));
+
+		UE_LOG(LogTemp, Warning, TEXT("Created new SaveGame Data."));
 	}
 }

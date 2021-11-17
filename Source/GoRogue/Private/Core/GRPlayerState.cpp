@@ -2,6 +2,7 @@
 
 
 #include "Core/GRPlayerState.h"
+#include "Core/GRSaveGame.h"
 
 int32 AGRPlayerState::GetCredits(int32 Delta) const
 {
@@ -40,4 +41,20 @@ bool AGRPlayerState::RemoveCredits(int32 Delta)
 	OnCreditsChanged.Broadcast(this, Credits, -Delta);
 
 	return true;
+}
+
+void AGRPlayerState::SavePlayerState_Implementation(UGRSaveGame* SaveObject)
+{
+	if (SaveObject)
+	{
+		SaveObject->Credits = Credits;
+	}
+}
+
+void AGRPlayerState::LoadPlayerState_Implementation(UGRSaveGame* SaveObject)
+{
+	if (SaveObject)
+	{
+		Credits = SaveObject->Credits;
+	}
 }

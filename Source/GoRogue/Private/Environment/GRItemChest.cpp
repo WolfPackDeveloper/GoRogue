@@ -31,6 +31,11 @@ void AGRItemChest::OnRep_LidOpened()
 	LidMesh->SetRelativeRotation(FRotator(CurrPitch, 0.f, 0.f));
 }
 
+void AGRItemChest::OnActorLoaded_Implementation()
+{
+	OnRep_LidOpened();
+}
+
 void AGRItemChest::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

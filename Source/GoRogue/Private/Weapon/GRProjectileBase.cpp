@@ -31,7 +31,7 @@ AGRProjectileBase::AGRProjectileBase()
 	AudioComp = CreateDefaultSubobject<UAudioComponent>("AudioComp");
 	AudioComp->SetupAttachment(RootComponent);
 
-	//SetReplicates(true);
+	SetReplicates(true);
 }
 
 void AGRProjectileBase::OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)

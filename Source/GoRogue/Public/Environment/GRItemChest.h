@@ -21,7 +21,7 @@ public:
 
 protected:
 
-	UPROPERTY(ReplicatedUsing="OnRep_LidOpened", BlueprintReadOnly)
+	UPROPERTY(ReplicatedUsing="OnRep_LidOpened", BlueprintReadOnly, SaveGame)
 	bool bLidOpened = false;
 	
 	UPROPERTY(VisibleAnywhere)
@@ -38,8 +38,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	float TargetPitch = 110.f;
 	
-	// Interface implementation
+	// GameplayInterface implementation
 	void Interact_Implementation(APawn* InstigationPawn);
+	void OnActorLoaded_Implementation();
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

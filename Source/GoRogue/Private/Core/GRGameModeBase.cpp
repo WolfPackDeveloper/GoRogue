@@ -7,12 +7,14 @@
 #include "Characters/GRCharacterBase.h"
 #include "Components/GRAttributeComponent.h"
 #include "Core/GRSaveGame.h"
+#include "Interfaces/GRGameplayInterface.h"
 
 #include "EnvironmentQuery/EnvQueryInstanceBlueprintWrapper.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "EngineUtils.h"
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/GameplayStatics.h" //Save Game
+#include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 
 static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("su.SpawnBots"), true, TEXT("Enable spawning of bots via timer."), ECVF_Cheat);
 
@@ -253,8 +255,10 @@ void AGRGameModeBase::WriteSaveGame()
 		}
 	}
 
-	// Iterate the entire world of actors
+	// Clear old data from save.
+	CurrentSaveGame->SavedActors.Empty();
 
+	// Iterate the entire world of actors
 	for (FActorIterator It(GetWorld()); It; ++It)
 	{
 		AActor* Actor = *It;
@@ -263,6 +267,21 @@ void AGRGameModeBase::WriteSaveGame()
 		{
 			continue;
 		}
+
+		FActorSaveData ActorData;
+		ActorData.Name = Actor->GetName();
+		ActorData.Transform = Actor->GetActorTransform();
+
+		// Pass the array to fill with data from Actor
+		FMemoryWriter MemWriter(ActorData.ByteData);
+
+		FObjectAndNameAsStringProxyArchive Arch(MemWriter, true);
+		// Find only variables with UPROPERTY(SaveGame)
+		Arch.ArIsSaveGame = true;
+		// Converts Actor`s SaveGame UPROPERTIES into binary array
+		Actor->Serialize(Arch);
+
+		CurrentSaveGame->SavedActors.Add(ActorData);
 	}
 
 	// Call SaveGameToSlot to serialize and save our SaveGameObject with name: <SaveGameSlotName>.sav
@@ -292,6 +311,38 @@ void AGRGameModeBase::LoadSaveGame()
 		}
 
 		UE_LOG(LogTemp, Warning, TEXT("Loaded SaveGame Data."));
+
+		// Load Actors Transform
+		// Iterate the entire world of actors
+		for (FActorIterator It(GetWorld()); It; ++It)
+		{
+			AActor* Actor = *It;
+			// Only interested in our "Gameplay Actors"
+			if (!Actor->Implements<UGRGameplayInterface>())
+			{
+				continue;
+			}
+
+			for (FActorSaveData ActorData : CurrentSaveGame->SavedActors)
+			{
+				if (ActorData.Name == Actor->GetName())
+				{
+					Actor->SetActorTransform(ActorData.Transform);
+
+					FMemoryReader MemReader(ActorData.ByteData);
+
+					FObjectAndNameAsStringProxyArchive Arch(MemReader, true);
+					// Find only variables with UPROPERTY(SaveGame)
+					Arch.ArIsSaveGame = true;
+					// ConvertsByte array data back into Actor`s variables
+					Actor->Serialize(Arch);
+
+					IGRGameplayInterface::Execute_OnActorLoaded(Actor);
+
+					break;
+				}
+			}
+		}
 	}
 	else
 	{

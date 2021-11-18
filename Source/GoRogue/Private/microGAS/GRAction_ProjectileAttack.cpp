@@ -69,14 +69,15 @@ void UGRAction_ProjectileAttack::StartAction_Implementation(AActor* Instigator)
 		// В примере это работает ок. У меня же не реплицируется созданный снаряд на клиента.
 		// Возможно нужно пересмотреть ещё раз уроки по сети... Но по файлам всё сходится... Странно.
 		// P.S. У меня задвоения снаряда не было...
-		//if (Character->HasAuthority())
-		//{
+		// P.P.S. Потому что ты мудак - у тебя было закомменченов базовом классе снаряда, в конструкторе функция SetReplicate(true). Что это такое  - сам догадаешься.
+		if (Character->HasAuthority())
+		{
 			FTimerHandle TimerHandle_AttackDelay;
 			FTimerDelegate Delegate;
 			Delegate.BindUFunction(this, "AttackDelay_Elapsed", Character);
 
 			GetWorld()->GetTimerManager().SetTimer(TimerHandle_AttackDelay, Delegate, AttackAnimDelay, false);
-		//}
+		}
 	}
 }
 

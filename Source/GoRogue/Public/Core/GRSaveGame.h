@@ -15,11 +15,14 @@ public:
 
 	/* Identifier for which Actor this belongs to. */
 	UPROPERTY()
-	FString ActorName;
+	FString Name;
 	
 	/* For movable Actors, keep location, rotation and scale. */
 	UPROPERTY()
-	FTransform ActorTransform;
+	FTransform Transform;
+
+	UPROPERTY()
+	TArray<uint8> ByteData;
 };
 
 /**

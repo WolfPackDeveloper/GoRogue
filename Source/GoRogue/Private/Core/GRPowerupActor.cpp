@@ -5,6 +5,7 @@
 
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 AGRPowerupActor::AGRPowerupActor()
@@ -24,6 +25,13 @@ AGRPowerupActor::AGRPowerupActor()
 	SetReplicates(true);
 }
 
+void AGRPowerupActor::OnRep_IsActive()
+{
+	SetActorEnableCollision(bIsActive);
+	// Set visibility on root and all children
+	RootComponent->SetVisibility(bIsActive, true);
+}
+
 void AGRPowerupActor::ShowPowerup()
 {
 	SetPowerupState(true);
@@ -39,13 +47,18 @@ void AGRPowerupActor::HideAndCooldownPowerup()
 
 void AGRPowerupActor::SetPowerupState(bool bNewIsActive)
 {
-	SetActorEnableCollision(bNewIsActive);
-
-	// Set visibility on root and all children
-	RootComponent->SetVisibility(bNewIsActive, true);
+	bIsActive = bNewIsActive;
+	OnRep_IsActive();
 }
 
 void AGRPowerupActor::Interact_Implementation(APawn* InstigatorPawn)
 {
 
+}
+
+void AGRPowerupActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AGRPowerupActor, bIsActive);
 }

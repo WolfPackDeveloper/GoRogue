@@ -6,7 +6,6 @@
 #include "Components/ActorComponent.h"
 #include "GRAttributeComponent.generated.h"
 
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChanched, AActor*, InstigatorActor, UGRAttributeComponent*, OwningComp, float, NewHealth, float, Delta);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnAttributeChanged, AActor*, InstigatorActor, UGRAttributeComponent*, OwningComp, float, NewValue, float, Delta);
 
 
@@ -27,16 +26,19 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Attributes")
 	float HealthMax = 100.f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Attributes")
 	float Rage;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Attributes")
 	float RageMax = 100.f;
 
-
-	UFUNCTION(NetMulticast, Reliable) // @FIXME: mark as unreliable once we moved the 'state' out of grcharacter
+	UFUNCTION(NetMulticast, Reliable) // @note: could mark as unreliable once we moved the 'state' out of scharacter (eg. once its cosmetic only)
 	void MulticastHealthChanged(AActor* InstigatorActor, float NewHealth, float Delta);
 	void MulticastHealthChanged_Implementation(AActor* InstigatorActor, float NewHealth, float Delta);
+
+	UFUNCTION(NetMulticast, Unreliable) // Used for cosmetic changes only
+	void MulticastRageChanged(AActor* InstigatorActor, float NewRage, float Delta);
+	void MulticastRageChanged_Implementation(AActor* InstigatorActor, float NewRage, float Delta);
 
 public:
 
@@ -75,7 +77,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	bool ApplyRage(AActor* InstigatorActor, float Delta);
-
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

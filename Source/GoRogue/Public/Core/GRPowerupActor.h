@@ -30,6 +30,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UStaticMeshComponent* MeshComp;
 
+	UPROPERTY(ReplicatedUsing = "OnRep_IsActive")
+	bool bIsActive = true;
+
+	UFUNCTION()
+	void OnRep_IsActive();
+
 	UFUNCTION()
 	void ShowPowerup();
 
@@ -41,4 +47,5 @@ public:
 
 	void Interact_Implementation(APawn* InstigatorPawn) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

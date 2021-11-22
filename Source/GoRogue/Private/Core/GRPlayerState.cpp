@@ -4,6 +4,18 @@
 #include "Core/GRPlayerState.h"
 #include "Core/GRSaveGame.h"
 
+#include "Net/UnrealNetwork.h"
+
+void AGRPlayerState::OnRep_Credits(int32 OldCredits)
+{
+	OnCreditsChanged.Broadcast(this, Credits, Credits - OldCredits);
+}
+
+ //void AGRPlayerState::MulticastCredits_Implementation(float NewCredits, float Delta)
+ //{
+ //	OnCreditsChanged.Broadcast(this, NewCredits, Delta);
+ //}
+
 int32 AGRPlayerState::GetCredits(int32 Delta) const
 {
 	return Credits;
@@ -55,6 +67,15 @@ void AGRPlayerState::LoadPlayerState_Implementation(UGRSaveGame* SaveObject)
 {
 	if (SaveObject)
 	{
-		Credits = SaveObject->Credits;
+		//Credits = SaveObject->Credits;
+		// Makes sure we trigger credits changed event
+		AddCredits(SaveObject->Credits);
 	}
+}
+
+void AGRPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AGRPlayerState, Credits);
 }

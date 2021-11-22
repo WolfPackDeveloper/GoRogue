@@ -23,6 +23,11 @@ void UGRAttributeComponent::MulticastHealthChanged_Implementation(AActor* Instig
 	OnHealthChanged.Broadcast(InstigatorActor, this, NewHealth, Delta);
 }
 
+void UGRAttributeComponent::MulticastRageChanged_Implementation(AActor* InstigatorActor, float NewRage, float Delta)
+{
+	OnRageChanged.Broadcast(InstigatorActor, this, NewRage, Delta);
+}
+
 UGRAttributeComponent* UGRAttributeComponent::GetAttributes(AActor* FromActor)
 {
 	if (FromActor)
@@ -139,4 +144,7 @@ void UGRAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 
 	DOREPLIFETIME(UGRAttributeComponent, Health);
 	DOREPLIFETIME(UGRAttributeComponent, HealthMax);
+	DOREPLIFETIME(UGRAttributeComponent, Rage);
+	DOREPLIFETIME(UGRAttributeComponent, RageMax);
+
 }

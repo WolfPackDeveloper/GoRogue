@@ -9,3 +9,15 @@ void AGRPlayerController::SetPawn(APawn* InPawn)
 
 	OnPawnChanged.Broadcast(InPawn);
 }
+
+void AGRPlayerController::BeginPlayingState()
+{
+	BlueprintBeginPlayingState();
+}
+
+void AGRPlayerController::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	OnPlayerStateReceived.Broadcast(PlayerState);
+}

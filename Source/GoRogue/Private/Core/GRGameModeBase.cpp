@@ -181,15 +181,16 @@ void AGRGameModeBase::StartPlay()
 
 void AGRGameModeBase::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
 {
-	// Странно... А зачем _Implementation?
-	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
-
+	// Сначала загружаем PlayerState, а уже потом начинаем по полной.) В том числе вызывается BeginPlayingState() на контроллерах.
 	AGRPlayerState* PS = NewPlayer->GetPlayerState<AGRPlayerState>();
 
 	if (PS)
 	{
 		PS->LoadPlayerState(CurrentSaveGame);
 	}
+
+	// Странно... А зачем _Implementation?
+	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
 }
 
 void AGRGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)

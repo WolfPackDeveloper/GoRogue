@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "GRPlayerController.generated.h"
 
+class UUserWidget;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPawnChanged, APawn*, NewPawn);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStateChanged, APlayerState*, NewPlayerState);
 /**
@@ -17,6 +19,13 @@ class GOROGUE_API AGRPlayerController : public APlayerController
 	GENERATED_BODY()
 	
 protected:
+	
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> PauseMenuClass;
+
+	UPROPERTY()
+	UUserWidget* PauseMenuInstance;
+	
 	UPROPERTY(BlueprintAssignable)
 	FOnPawnChanged OnPawnChanged;
 
@@ -24,6 +33,11 @@ protected:
 	// afterwards player state will not change again as PlayerControllers maintain the same player state throughout the level)
 	UPROPERTY(BlueprintAssignable)
 	FOnPlayerStateChanged OnPlayerStateReceived;
+
+	UFUNCTION(BlueprintCallable)
+	void TogglePauseMenu();
+
+	virtual void SetupInputComponent() override;
 
 	virtual void SetPawn(APawn* InPawn) override;
 	

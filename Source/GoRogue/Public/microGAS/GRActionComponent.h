@@ -7,8 +7,9 @@
 #include "GameplayTagContainer.h"
 #include "GRActionComponent.generated.h"
 
-
 class UGRAction;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnActionStateChanged, UGRActionComponent*, OwningComp, UGRAction*, Action);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GOROGUE_API UGRActionComponent : public UActorComponent
@@ -25,7 +26,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Actions")
 	TArray<TSubclassOf<UGRAction>> DefaultActions;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(BlueprintReadOnly, Replicated)
 	TArray<UGRAction*> Actions;
 	
 	UFUNCTION(Server, Reliable)
@@ -41,6 +42,12 @@ protected:
 
 public:	
 	
+	UPROPERTY(BlueprintAssignable)
+	FOnActionStateChanged OnActionStarted;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnActionStateChanged OnActionStopped;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tags")
 	FGameplayTagContainer ActiveGameplayTags;
 	

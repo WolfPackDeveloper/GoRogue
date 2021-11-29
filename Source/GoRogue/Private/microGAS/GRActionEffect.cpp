@@ -54,3 +54,11 @@ void UGRActionEffect::StopAction_Implementation(AActor* Instigator)
 		Comp->RemoveAction(this);
 	}
 }
+
+float UGRActionEffect::GetTimeRemaining() const
+{
+	float EndTime = TimeStarted + Duration;
+
+	return EndTime - GetWorld()->TimeSeconds;
+}
+

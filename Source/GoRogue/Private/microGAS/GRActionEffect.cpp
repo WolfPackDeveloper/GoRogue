@@ -4,6 +4,8 @@
 #include "microGAS/GRActionEffect.h"
 #include "microGAS/GRActionComponent.h"
 
+#include "GameFramework/GameStateBase.h"
+
 UGRActionEffect::UGRActionEffect()
 {
 	bAutoStart = true;
@@ -57,8 +59,15 @@ void UGRActionEffect::StopAction_Implementation(AActor* Instigator)
 
 float UGRActionEffect::GetTimeRemaining() const
 {
-	float EndTime = TimeStarted + Duration;
+	AGameStateBase* GS =  GetWorld()->GetGameState<AGameStateBase>();
 
-	return EndTime - GetWorld()->TimeSeconds;
+	if (GS)
+	{
+		float EndTime = TimeStarted + Duration;
+
+		return EndTime - GS->GetServerWorldTimeSeconds();
+	}
+
+	return Duration;
 }
 

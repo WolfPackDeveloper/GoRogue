@@ -56,6 +56,11 @@ void AGRPowerupActor::Interact_Implementation(APawn* InstigatorPawn)
 
 }
 
+FText AGRPowerupActor::GetInteractText_Implementation(APawn* InstigationPawn)
+{
+	return FText::GetEmpty();
+}
+
 void AGRPowerupActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

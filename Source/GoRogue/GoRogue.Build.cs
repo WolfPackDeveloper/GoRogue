@@ -18,11 +18,11 @@ public class GoRogue : ModuleRules
 			"GoRogue/Public/Characters",
 			"GoRogue/Public/Components",
 			"GoRogue/Public/Core",
+			"GoRogue/Public/Data",
 			"GoRogue/Public/Environment",
 			"GoRogue/Public/microGAS",
 			"GoRogue/Public/Interfaces",
-			"GoRogue/Public/Weapon",
-			"GoRogue/Public/Widgets"
+			"GoRogue/Public/Weapon"
 		});
 
         // Configuration for faster build small projects:

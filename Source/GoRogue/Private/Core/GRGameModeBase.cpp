@@ -9,13 +9,17 @@
 #include "Core/GRSaveGame.h"
 #include "Data/GRMonsterData.h"
 #include "Interfaces/GRGameplayInterface.h"
+#include "microGAS/GRActionComponent.h"
+#include "../GoRogue.h"
 
 #include "EnvironmentQuery/EnvQueryInstanceBlueprintWrapper.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
+#include "Engine/AssetManager.h"
 #include "EngineUtils.h"
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/GameplayStatics.h" //Save Game
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
+
 
 static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("su.SpawnBots"), true, TEXT("Enable spawning of bots via timer."), ECVF_Cheat);
 
@@ -98,7 +102,33 @@ void AGRGameModeBase::OnBotSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper
 			int32 RandomIndex = FMath::RandRange(0, Rows.Num() - 1);
 			FMonsterInfoRow* SelectedRow = Rows[RandomIndex];
 
-			GetWorld()->SpawnActor<AActor>(SelectedRow->MonsterData->MonsterClass, Locations[0], FRotator::ZeroRotator);
+			UAssetManager* Manager = UAssetManager::GetIfValid();
+
+			if (Manager)
+			{
+				TArray<FName> Bundles;
+				FStreamableDelegate Delegate;
+
+				Manager->LoadPrimaryAsset(SelectedRow->MonsterId, Bundles, Delegate);
+			}
+
+			AActor* NewBot = GetWorld()->SpawnActor<AActor>(SelectedRow->MonsterData->MonsterClass, Locations[0], FRotator::ZeroRotator);
+
+			if (NewBot)
+			{
+				LogOnScreen(this, FString::Printf(TEXT("Spawned enemy: %s (%s)"), *GetNameSafe(NewBot), *GetNameSafe(SelectedRow->MonsterData)));
+
+				// Grant special actions, buffs etc.
+				UGRActionComponent* ActionComp = Cast<UGRActionComponent>(NewBot->GetComponentByClass(UGRActionComponent::StaticClass()));
+
+				if (ActionComp)
+				{
+					for (TSubclassOf<UGRAction> ActionClass : SelectedRow->MonsterData->Actions)
+					{
+						ActionComp->AddAction(NewBot, ActionClass);
+					}
+				}
+			}
 		}
 	}
 }

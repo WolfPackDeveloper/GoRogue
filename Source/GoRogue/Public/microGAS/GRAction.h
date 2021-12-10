@@ -36,7 +36,8 @@ class GOROGUE_API UGRAction : public UObject
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
-	UTexture2D* Icon;
+	TSoftObjectPtr<UTexture2D> Icon;
+	//UTexture2D* Icon;
 
 	/* Tags added to owning actor when activated, and removed, when action stops. */
 	UPROPERTY(EditDefaultsOnly, Category = "Tags")

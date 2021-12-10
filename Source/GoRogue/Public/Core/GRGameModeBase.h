@@ -31,7 +31,9 @@ public:
 	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	UGRMonsterData* MonsterData;
+	FPrimaryAssetId MonsterId;
+
+	//UGRMonsterData* MonsterData;
 	//TSubclassOf<AActor> MonsterClass;
 
 	/* Relative chance to pick this monster. */

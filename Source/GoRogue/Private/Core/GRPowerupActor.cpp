@@ -22,7 +22,11 @@ AGRPowerupActor::AGRPowerupActor()
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	MeshComp->SetupAttachment(RootComponent);
 
-	SetReplicates(true);
+	// In 4.26+ version of UE this function gives strange LogActor warning:
+	// LogActor: Warning: Set Replicates called on non-initialized actor Directly setting Replicates is the correct procedure for pre-init actors.
+	// Need to replace this on bReplicates = true;
+	//SetReplicates(true);
+	bReplicates = true;
 }
 
 void AGRPowerupActor::OnRep_IsActive()

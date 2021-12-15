@@ -106,24 +106,41 @@ void AGRGameModeBase::OnBotSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper
 
 			if (Manager)
 			{
+				LogOnScreen(this, "Loading monster...", FColor::Yellow);
+				
 				TArray<FName> Bundles;
-				FStreamableDelegate Delegate;
+				FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(this, &AGRGameModeBase::OnMonsterLoaded, SelectedRow->MonsterId, Locations[0]);;
 
 				Manager->LoadPrimaryAsset(SelectedRow->MonsterId, Bundles, Delegate);
 			}
+		}
+	}
+}
 
-			AActor* NewBot = GetWorld()->SpawnActor<AActor>(SelectedRow->MonsterData->MonsterClass, Locations[0], FRotator::ZeroRotator);
+void AGRGameModeBase::OnMonsterLoaded(FPrimaryAssetId LoadedId, FVector SpawnLocation)
+{
+	LogOnScreen(this, "Monster loading finished.", FColor::Green);
+	
+	UAssetManager* Manager = UAssetManager::GetIfValid();
+
+	if (Manager)
+	{
+		UGRMonsterData* MonsterData = Cast<UGRMonsterData>(Manager->GetPrimaryAssetObject(LoadedId));
+
+		if (MonsterData)
+		{
+			AActor* NewBot = GetWorld()->SpawnActor<AActor>(MonsterData->MonsterClass, SpawnLocation, FRotator::ZeroRotator);
 
 			if (NewBot)
 			{
-				LogOnScreen(this, FString::Printf(TEXT("Spawned enemy: %s (%s)"), *GetNameSafe(NewBot), *GetNameSafe(SelectedRow->MonsterData)));
+				LogOnScreen(this, FString::Printf(TEXT("Spawned enemy: %s (%s)"), *GetNameSafe(NewBot), *GetNameSafe(MonsterData)));
 
 				// Grant special actions, buffs etc.
 				UGRActionComponent* ActionComp = Cast<UGRActionComponent>(NewBot->GetComponentByClass(UGRActionComponent::StaticClass()));
 
 				if (ActionComp)
 				{
-					for (TSubclassOf<UGRAction> ActionClass : SelectedRow->MonsterData->Actions)
+					for (TSubclassOf<UGRAction> ActionClass : MonsterData->Actions)
 					{
 						ActionComp->AddAction(NewBot, ActionClass);
 					}
@@ -352,7 +369,8 @@ void AGRGameModeBase::LoadSaveGame()
 			return;
 		}
 
-		UE_LOG(LogTemp, Warning, TEXT("Loaded SaveGame Data."));
+		// Debug
+		//UE_LOG(LogTemp, Warning, TEXT("Loaded SaveGame Data."));
 
 		// Load Actors Transform
 		// Iterate the entire world of actors

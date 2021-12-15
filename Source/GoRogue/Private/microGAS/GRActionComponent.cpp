@@ -8,6 +8,8 @@
 #include "Net/UnrealNetwork.h"
 #include "Engine/ActorChannel.h"
 
+DECLARE_CYCLE_STAT(TEXT("StatActionByName"), STAT_StartActionByName, STATGROUP_STANFORD);
+
 // Sets default values for this component's properties
 UGRActionComponent::UGRActionComponent()
 {
@@ -42,6 +44,21 @@ void UGRActionComponent::BeginPlay()
 	}
 }
 
+
+void UGRActionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	// Stop all
+	TArray<UGRAction*> ActionsCopy = Actions;
+	for (UGRAction* Action : ActionsCopy)
+	{
+		if (Action && Action->IsRunning())
+		{
+			Action->StopAction(GetOwner());
+		}
+	}
+	
+	Super::EndPlay(EndPlayReason);
+}
 
 // Called every frame
 void UGRActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -117,6 +134,8 @@ void UGRActionComponent::RemoveAction(UGRAction* ActionToRemove)
 
 bool UGRActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
 {
+	SCOPE_CYCLE_COUNTER(STAT_StartActionByName);
+	
 	for (UGRAction* Action : Actions)
 	{
 		if (Action && Action->ActionName == ActionName)
@@ -136,6 +155,9 @@ bool UGRActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
 				ServerStartAction(Instigator, ActionName);
 			}
 			
+			// Bookmark for Unreal Insights
+			TRACE_BOOKMARK(TEXT("StartAction::%s"), *GetNameSafe(Action));
+
 			Action->StartAction(Instigator);
 			return true;
 		}

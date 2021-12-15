@@ -31,7 +31,11 @@ AGRProjectileBase::AGRProjectileBase()
 	AudioComp = CreateDefaultSubobject<UAudioComponent>("AudioComp");
 	AudioComp->SetupAttachment(RootComponent);
 
-	SetReplicates(true);
+	// In 4.26+ version of UE this function gives strange LogActor warning:
+	// LogActor: Warning: Set Replicates called on non-initialized actor Directly setting Replicates is the correct procedure for pre-init actors.
+	// Need to replace this on bReplicates = true;
+	//SetReplicates(true);
+	bReplicates = true;
 }
 
 void AGRProjectileBase::OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)

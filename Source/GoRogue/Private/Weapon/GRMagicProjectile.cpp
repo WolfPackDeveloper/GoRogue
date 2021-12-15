@@ -15,6 +15,8 @@ AGRMagicProjectile::AGRMagicProjectile()
 {
 	SphereComp->SetSphereRadius(DefaultSphereRadius);
 	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &AGRMagicProjectile::OnActorOverlap);
+
+	InitialLifeSpan = 10.f;
 }
 
 void AGRMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

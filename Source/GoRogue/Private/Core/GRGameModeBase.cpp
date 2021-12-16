@@ -33,6 +33,13 @@ void AGRGameModeBase::InitGame(const FString& MapName, const FString& Options, F
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
 
+	FString SelectedSaveSlot = UGameplayStatics::ParseOption(Options, "SaveGame");
+
+	if (SelectedSaveSlot.Len() > 0)
+	{
+		SlotName = SelectedSaveSlot;
+	}
+
 	LoadSaveGame();
 }
 

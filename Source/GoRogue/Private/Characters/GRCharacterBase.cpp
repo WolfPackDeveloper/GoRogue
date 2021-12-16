@@ -33,6 +33,8 @@ AGRCharacterBase::AGRCharacterBase()
 
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+
+	GetMesh()->SetGenerateOverlapEvents(true);
 }
 
 
